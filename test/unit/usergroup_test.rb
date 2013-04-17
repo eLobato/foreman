@@ -149,4 +149,59 @@ class UsergroupTest < ActiveSupport::TestCase
 
   # TODO test who can modify usergroup roles and who can assign users!!! possible privileges escalation
 
+  context 'external usergroups' do
+    setup do
+      @usergroup = FactoryGirl.create(:usergroup)
+      @external = @usergroup.external_usergroups.new(:auth_source_id => FactoryGirl.create(:auth_source_ldap).id,
+                                                     :name           => 'aname')
+      LdapFluff.any_instance.stubs(:ldap).returns(Net::LDAP.new)
+    end
+
+    test "can be associated with external_usergroups" do
+      Net::LDAP.any_instance.stubs(:includes_cn?).returns(true)
+
+      assert @external.save
+      assert @usergroup.external_usergroups.include? @external
+    end
+
+    test "won't save if usergroup is not in LDAP" do
+      Net::LDAP.any_instance.stubs(:includes_cn?).returns(false)
+
+      refute @external.save
+      assert_equal @external.errors.first, [:name, 'is not an LDAP user group']
+    end
+
+    test "delete user if not in LDAP directory" do
+      Net::LDAP.any_instance.stubs(:includes_cn?).returns(false)
+      @usergroup.users << users(:one)
+      @usergroup.save
+
+      ExternalUsergroup.any_instance.stubs(:ldap_users).returns([])
+      @usergroup.external_usergroups.select { |eu| eu.name == 'aname'}.first.refresh
+
+      refute_includes @usergroup.users, users(:one)
+    end
+
+    test "add user if in LDAP directory" do
+      Net::LDAP.any_instance.stubs(:includes_cn?).returns(true)
+      @usergroup.save
+
+      ExternalUsergroup.any_instance.stubs(:ldap_users).returns([users(:one).login])
+      @usergroup.external_usergroups.select { |eu| eu.name == 'aname'}.first.refresh
+      assert_includes @usergroup.users, users(:one)
+    end
+
+    test "keep user if in LDAP directory" do
+      Net::LDAP.any_instance.stubs(:includes_cn?).returns(true)
+      @usergroup.users << users(:one)
+      @usergroup.save
+
+      ExternalUsergroup.any_instance.stubs(:ldap_users).returns([users(:one).login])
+      @usergroup.external_usergroups.select { |eu| eu.name == 'aname'}.first.refresh
+      assert_includes @usergroup.users, users(:one)
+    end
+
+  end
+
+
 end

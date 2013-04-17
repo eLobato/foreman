@@ -1,8 +1,11 @@
 class Usergroup < ActiveRecord::Base
-  audited :allow_mass_assignment => true
   include Authorizable
 
+<<<<<<< HEAD
   before_destroy EnsureNotUsedBy.new(:hosts)
+=======
+  audited :allow_mass_assignment => true
+>>>>>>> Usergroups can be linked to an LDAP auth_source. This allows usergroups
 
   has_many :user_roles, :dependent => :destroy, :foreign_key => 'owner_id', :conditions => {:owner_type => self.to_s}
   has_many :roles, :through => :user_roles, :dependent => :destroy
@@ -48,6 +51,19 @@ class Usergroup < ActiveRecord::Base
     group_list.sort.uniq
   end
 
+  def ldap_users
+    external_usergroups.select { |eu| eu.auth_source.class == AuthSourceLdap }.map(&:ldap_users).flatten.uniq
+  end
+
+  def add_users(userlist)
+    users << User.where( {:login => userlist } )
+  end
+
+  def remove_users(userlist)
+    old_users = User.select { |user| userlist.include?(user.login) }
+    self.users = self.users - old_users
+  end
+
   protected
   # Recurses down the tree of usergroups and finds the users
   # [+group_list+]: Array of Usergroups that have already been processed
@@ -66,15 +82,5 @@ class Usergroup < ActiveRecord::Base
   def ensure_uniq_name
     errors.add :name, _("is already used by a user account") if User.where(:login => name).first
   end
-
-  def add_users(userlist)
-    users << User.where( {:login => userlist } )
-  end
-
-  def remove_users(userlist)
-    old_users = User.select { |user| userlist.include?(user.login) }
-    self.users = self.users - old_users
-  end
-
 
 end
