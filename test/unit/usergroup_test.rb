@@ -132,4 +132,57 @@ class UsergroupTest < ActiveSupport::TestCase
 
   # TODO test who can modify usergroup roles and who can assign users!!! possible privileges escalation
 
+  test "can be associated with auth_sources" do
+    record = FactoryGirl.create(:usergroup)
+    record.auth_source = auth_sources(:one)
+    AuthSourceLdap.any_instance.stubs(:includes_cn?).returns(true)
+
+    assert record.valid?
+  end
+
+  test "won't save if usergroup is not in LDAP" do
+    record = FactoryGirl.create(:usergroup)
+    record.auth_source = auth_sources(:one)
+    AuthSourceLdap.any_instance.stubs(:includes_cn?).returns(false)
+
+    assert !record.save
+    assert_equal record.errors.first, [:auth_source_id, "is not an LDAP user group"]
+  end
+
+  test "delete user if not in LDAP directory" do
+    record = FactoryGirl.create(:usergroup)
+    record.auth_source = auth_sources(:one)
+    AuthSourceLdap.any_instance.stubs(:includes_cn?).returns(true)
+    record.users << users(:one)
+    record.save
+
+    Usergroup.any_instance.stubs(:ldap_users).returns([])
+    record.refresh_ldap
+    assert_equal record.users.include?(users(:one)), false
+  end
+
+  test "add user if in LDAP directory" do
+    record = FactoryGirl.create(:usergroup)
+    record.auth_source = auth_sources(:one)
+    AuthSourceLdap.any_instance.stubs(:includes_cn?).returns(true)
+    record.save
+
+    Usergroup.any_instance.stubs(:ldap_users).returns([users(:one).login])
+    record.refresh_ldap
+    assert_equal record.users.include?(users(:one)), true
+  end
+
+  test "keep user if in LDAP directory" do
+    record = FactoryGirl.create(:usergroup)
+    record.auth_source = auth_sources(:one)
+    AuthSourceLdap.any_instance.stubs(:includes_cn?).returns(true)
+    record.users << users(:one)
+    record.save
+
+    Usergroup.any_instance.stubs(:ldap_users).returns([users(:one).login])
+    record.refresh_ldap
+    assert_equal record.users.include?(users(:one)), true
+  end
+
+
 end

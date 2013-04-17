@@ -3,12 +3,13 @@ require 'test_helper'
 class AuthSourceLdapTest < ActiveSupport::TestCase
   def setup
     @auth_source_ldap = AuthSourceLdap.new
-    @attributes = { :name= => "value",
-                    :host= => "value",
-                    :attr_login= => "value",
-                    :attr_mail= => "some@where.com",
-                    :attr_firstname= => "ohad",
-                    :attr_lastname=  => "daho",
+    @attributes = { :name= => 'value',
+                    :host= => 'value',
+                    :server_type= => 'free_ipa',
+                    :attr_login=  => 'value',
+                    :attr_mail=   => 'some@where.com',
+                    :attr_firstname= => 'ohad',
+                    :attr_lastname=  => 'daho',
                     :port= => 389 }
     User.current = users(:admin)
   end
@@ -166,14 +167,22 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
     assert_not_nil AuthSourceLdap.authenticate("test123", "changeme")
   end
 
+  test "ldap user usergroups are refreshed" do
+    # stubs out all the actual ldap connectivity, but tests the authenticate
+    # method of auth_source_ldap
+    setup_ldap_stubs
+    AuthSourceLdap.any_instance.expects(:update_usergroups)
+    AuthSourceLdap.authenticate("test123", "changeme")
+  end
+
   def setup_ldap_stubs
     # stub out all the LDAP connectivity
     entry = Net::LDAP::Entry.new
     {:givenname=>["test"], :dn=>["uid=test123,cn=users,cn=accounts,dc=example,dc=com"], :mail=>["test123@example.com"], :sn=>["test"]}.each do |k, v|
       entry[k] = v
     end
+    AuthSourceLdap.any_instance.stubs(:search_for_user_entry).returns(entry)
     AuthSourceLdap.any_instance.stubs(:initialize_ldap_con).returns(stub(:bind => true))
-    AuthSourceLdap.any_instance.stubs(:search_for_user_entries).returns(entry)
   end
 
   def missing(attr)

@@ -24,10 +24,14 @@ class AuthSourceLdap < AuthSource
   validates :name, :account_password, :length => {:maximum => 60}, :allow_nil => true
   validates :account, :base_dn, :ldap_filter, :length => {:maximum => 255}, :allow_nil => true
   validates :port, :presence => true, :numericality => {:only_integer => true}
+  validates :server_type, :presence => true
   validate :validate_ldap_filter, :unless => Proc.new { |auth| auth.ldap_filter.blank? }
 
   before_validation :strip_ldap_attributes
   after_initialize :set_defaults
+
+  SERVER_TYPES = { :free_ipa => 'FreeIPA', :active_directory => 'ActiveDirectory',
+                   :posix    => 'Posix'}
 
   # Loads the LDAP info for a user and authenticates the user with their password
   # Returns : Array of Strings.
@@ -35,12 +39,9 @@ class AuthSourceLdap < AuthSource
   def authenticate(login, password)
     return nil if login.blank? || password.blank?
 
-    logger.debug "LDAP-Auth with User #{effective_user(login)}"
-    # first, search for User Entries in LDAP
-    entry = search_for_user_entries(login, password)
-    return nil unless entry.is_a?(Net::LDAP::Entry)
+    logger.debug "LDAP-Auth with User #{login}"
 
-    # extract attributes
+    entry = search_for_user_entry(login)
     attrs = attributes_values(entry)
 
     # not sure if there is a case were search result without a DN
@@ -60,13 +61,14 @@ class AuthSourceLdap < AuthSource
       logger.warn "Failed to authenticate #{login}"
       return nil
     end
-    # return user's attributes
+
+    update_usergroups(entry)
+
     attrs
   rescue Net::LDAP::LdapError => text
     raise "LdapError: %s" % text
   end
 
-  # test the connection to the LDAP
   def test_connection
     ldap_con = initialize_ldap_con(self.account, self.account_password)
     ldap_con.open { }
@@ -76,6 +78,31 @@ class AuthSourceLdap < AuthSource
 
   def auth_method_name
     "LDAP"
+  end
+
+  def includes_cn?(cn)
+    filter     = Net::LDAP::Filter.eq("cn", cn)
+    ldap_fluff = LdapFluff.new(self.to_config)
+    ldap_con(ldap_fluff).search(:base => base_dn, :filter => filter).present?
+  end
+
+  def userlist(group)
+    ldap_fluff = LdapFluff.new(self.to_config)
+    return nil unless ldap_fluff.valid_group?(group)
+
+    group_filter = ldap_fluff.ldap.member_service.group_filter(group)
+    search       = ldap_con(ldap_fluff).search(:base => base_dn, :filter => group_filter).last
+    return [] unless search.respond_to? :member
+
+    members  = search.member
+    get_logins(members)
+  end
+
+  def to_config
+    { :host    => host,    :port => port, :encryption => (tls ? :start_tls : nil),
+      :base_dn => base_dn, :group_base => groups_base,
+      :server_type  => server_type.to_sym, :service_user => account,
+      :service_pass => account_password,   :anon_queries => anon_queries }
   end
 
   private
@@ -95,17 +122,12 @@ class AuthSourceLdap < AuthSource
     Net::LDAP.new options
   end
 
+  def ldap_con(ldap_fluff)
+    ldap_fluff.ldap.ldap
+  end
+
   def set_defaults
     self.port ||= 389
-  end
-
-  def use_user_login_for_auth?
-    # returns true if account is defined and includes "$login"
-    (account and account.include? "$login")
-  end
-
-  def effective_user(login)
-    use_user_login_for_auth? ? account.sub("$login", login) : account
   end
 
   def required_ldap_attributes
@@ -133,6 +155,16 @@ class AuthSourceLdap < AuthSource
     end]
   end
 
+  def get_groups(grouplist)
+    p = proc { |g| g.sub(/.*?cn=(.*?),.*/, '\1') }
+    grouplist.collect(&p)
+  end
+
+  def get_logins(grouplist)
+    p = proc { |g| g.sub(/.*?#{(attr_login || 'uid')}=(.*?),.*/, '\1') }
+    grouplist.collect(&p)
+  end
+
   def store_avatar avatar
     avatar_path = "#{Rails.public_path}/assets/avatars"
     avatar_hash = Digest::SHA1.hexdigest(avatar)
@@ -143,33 +175,51 @@ class AuthSourceLdap < AuthSource
     end
     avatar_hash
   end
- 
+
   def validate_ldap_filter
     Net::LDAP::Filter.construct(ldap_filter)
   rescue Net::LDAP::LdapError => text
     errors.add(:ldap_filter, _("invalid LDAP filter syntax"))
   end
 
-  def search_for_user_entries(login, password)
-    user          = effective_user(login)
-    pass          = use_user_login_for_auth? ? password : account_password
-    ldap_con      = initialize_ldap_con(user, pass)
-    login_filter  = Net::LDAP::Filter.eq(attr_login, login)
-    object_filter = Net::LDAP::Filter.eq("objectClass", "*")
-    object_filter = object_filter & Net::LDAP::Filter.construct(ldap_filter) unless ldap_filter.blank?
+  def search_for_user_entry(login)
+    ldap_fluff = LdapFluff.new(self.to_config)
+    return nil unless ldap_fluff.valid_user?(login)
 
-    # search for a match for our authenticating user.
-    entries       = ldap_con.search(:base       => base_dn,
-                                    :filter     => object_filter & login_filter,
-                                    # only ask for the DN if on-the-fly registration is disabled
-                                    :attributes => required_ldap_attributes.values + optional_ldap_attributes.values)
-    unless ldap_con.get_operation_result.code == 0
-      logger.warn "Search Result: #{ldap_con.get_operation_result.code}"
-      logger.warn "Search Message: #{ldap_con.get_operation_result.message}"
+    if attr_login.blank?
+      login_filter = ldap_fluff.ldap.member_service.name_filter(login)
+    else
+      login_filter = Net::LDAP::Filter.eq(attr_login, login)
     end
 
-    # we really care about one match, using the last one, hoping there is only one match :)
+    object_filter = Net::LDAP::Filter.eq('objectClass', '*')
+    object_filter = object_filter & Net::LDAP::Filter.construct(ldap_filter) unless ldap_filter.blank?
+
+    entries = ldap_con(ldap_fluff).search(:base => base_dn, :filter => object_filter & login_filter)
+
+    unless ldap_con(ldap_fluff).get_operation_result.code == 0
+      logger.warn "Search Result: #{ldap_con(ldap_fluff).get_operation_result.code}"
+      logger.warn "Search Message: #{ldap_con(ldap_fluff).get_operation_result.message}"
+    end
+
     entries ? entries.last : nil
+  end
+
+  def update_usergroups(entry)
+    if entry.respond_to? :memberof
+      group_list = entry.memberof
+    elsif entry.respond_to? :ismemberof
+      group_list = entry.ismemberof
+    else
+      return
+    end
+
+    group_list.each do |name|
+      begin
+      Usergroup.find_by_name(name).refresh_ldap
+      rescue
+      end
+    end
   end
 
 end

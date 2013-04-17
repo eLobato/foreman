@@ -1,13 +1,15 @@
 class Usergroup < ActiveRecord::Base
-  audited :allow_mass_assignment => true
   include Authorizable
+
+  audited :allow_mass_assignment => true
 
   has_many :user_roles, :dependent => :destroy, :foreign_key => 'owner_id', :conditions => {:owner_type => self.to_s}
   has_many :roles, :through => :user_roles, :dependent => :destroy
 
   has_many :usergroup_members, :dependent => :destroy
-  has_many :users,      :through => :usergroup_members, :source => :member, :source_type => 'User', :dependent => :destroy
-  has_many :usergroups, :through => :usergroup_members, :source => :member, :source_type => 'Usergroup', :dependent => :destroy
+  has_many :users,               :through => :usergroup_members, :source => :member, :source_type => 'User', :dependent => :destroy
+  has_many :usergroups,          :through => :usergroup_members, :source => :member, :source_type => 'Usergroup', :dependent => :destroy
+  has_many :external_usergroups, :dependent => :destroy
 
   has_many :cached_usergroup_members
   has_many :usergroup_parents, :dependent => :destroy, :foreign_key => 'member_id',
@@ -17,6 +19,8 @@ class Usergroup < ActiveRecord::Base
 
   has_many_hosts :as => :owner
   validates :name, :uniqueness => true, :length => { :maximum => 255 }
+
+  validates_uniqueness_of :name
   before_destroy EnsureNotUsedBy.new(:hosts, :usergroups)
 
   # The text item to see in a select dropdown menu
@@ -24,6 +28,8 @@ class Usergroup < ActiveRecord::Base
   default_scope lambda { order('usergroups.name') }
   scoped_search :on => :name, :complete_value => :true
   validate :ensure_uniq_name
+
+  accepts_nested_attributes_for :external_usergroups, :reject_if => lambda { |a| a[:name].blank? }, :allow_destroy => true
 
   # This methods retrieves all user addresses in a usergroup
   # Returns: Array of strings representing the user's email addresses
@@ -45,6 +51,22 @@ class Usergroup < ActiveRecord::Base
     group_list.sort.uniq
   end
 
+  def refresh_ldap
+    ldap_userlist = ldap_users
+    current_users = users.map(&:login)
+
+    old_ldap_users = current_users - ldap_userlist
+    new_ldap_users = ldap_userlist - current_users
+
+    remove_users(old_ldap_users)
+    add_users(new_ldap_users)
+  end
+
+  def ldap_users
+#    auth_source.is_a?(AuthSourceLdap) ? auth_source.userlist(name) : []
+  end
+
+
   protected
   # Recurses down the tree of usergroups and finds the users
   # [+group_list+]: Array of Usergroups that have already been processed
@@ -63,5 +85,15 @@ class Usergroup < ActiveRecord::Base
   def ensure_uniq_name
     errors.add :name, _("is already used by a user account") if User.where(:login => name).first
   end
+
+  def add_users(userlist)
+    users << User.where( {:login => userlist } )
+  end
+
+  def remove_users(userlist)
+    old_users = User.select { |user| userlist.include?(user.login) }
+    self.users = self.users - old_users
+  end
+
 
 end
