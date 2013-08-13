@@ -5,9 +5,8 @@ module SSO
     end
 
     def authenticate!
-      self.user = controller.authenticate_with_http_basic do |u, p|
-        User.try_to_login(u, p)
-      end.login
+      user = controller.authenticate_with_http_basic { |u, p| User.try_to_login(u, p) }
+      self.user = user.login if user.present?
     end
 
     def authenticated?
@@ -15,10 +14,7 @@ module SSO
     end
 
     def http_auth_set?
-      request.env['HTTP_AUTHORIZATION']   ||
-      request.env['X-HTTP_AUTHORIZATION'] ||
-      request.env['X_HTTP_AUTHORIZATION'] ||
-      request.env['REDIRECT_X_HTTP_AUTHORIZATION']
+      request.authorization.present? && request.authorization =~ /\ABasic/
     end
 
   end
