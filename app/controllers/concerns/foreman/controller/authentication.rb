@@ -20,7 +20,7 @@ module Foreman::Controller::Authentication
         return !User.current.nil?
       else
         if api_request?
-          # Deprecation warning: This is only trigged on ?format.json ?format.yaml calls (deprecated 'API')
+          # Deprecation warning: This is only triggered on ?format.json ?format.yaml calls (deprecated 'API')
           render :json => { :error => "Authentication error" }, :status => :unauthorized
         else
           # Keep the old request uri that we can redirect later on
