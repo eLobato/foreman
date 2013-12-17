@@ -15,14 +15,20 @@ module Api
     end
 
     rescue_from StandardError, :with => lambda { |error|
-      Rails.logger.error "#{error.message} (#{error.class})\n#{error.backtrace.join("\n")}"
+      logger.error "#{error.message} (#{error.class})\n#{error.backtrace.join("\n")}"
       render_error 'standard_error', :status => 500, :locals => { :exception => error }
     }
 
     rescue_from Apipie::ParamError, :with => lambda { |error|
-      Rails.logger.info "#{error.message} (#{error.class})"
+      logger.info "#{error.message} (#{error.class})"
       render_error 'param_error', :status => :bad_request, :locals => { :exception => error }
     }
+
+    rescue_from ActiveRecord::RecordNotFound, :with => lambda { |error|
+      logger.info "#{error.message} (#{error.class})"
+      not_found("#{error.message} (#{error.class})")
+    }
+
 
     def get_resource
       instance_variable_get :"@#{resource_name}" or raise 'no resource loaded'
@@ -46,8 +52,12 @@ module Api
 
     protected
 
-    def not_found
-      render_error 'not_found', :status => :not_found and return false
+    def not_found(message = nil)
+      if message
+        render :json => {:message => message}, :status => :not_found and return false
+      else
+        render_error 'not_found',              :status => :not_found and return false
+      end
     end
 
     def process_resource_error(options = { })
@@ -215,8 +225,7 @@ module Api
     def not_found_if_nested_id_exists
       allowed_nested_id.each do |obj_id|
         if params[obj_id].present?
-          msg = "#{obj_id.humanize} not found by id '#{params[obj_id]}'"
-          render :json => {:message => msg}, :status => :not_found and return false
+          not_found "#{obj_id.humanize} not found by id '#{params[obj_id]}'"
         end
       end
     end
