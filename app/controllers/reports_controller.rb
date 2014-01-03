@@ -2,12 +2,12 @@ class ReportsController < ApplicationController
   include Foreman::Controller::AutoCompleteSearch
 
   before_filter :setup_search_options, :only => :index
+  around_filter(:only => :index) do |controller, action|
+    search_error_handler( { :funnel => 'my_reports' } ) { action.call }
+  end
 
   def index
     @reports = Report.my_reports.search_for(params[:search], :order => params[:order]).paginate(:page => params[:page], :per_page => params[:per_page]).includes(:host)
-  rescue => e
-    error e.to_s
-    @reports = Report.my_reports.search_for("").paginate :page => params[:page]
   end
 
   def show

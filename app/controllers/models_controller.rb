@@ -1,9 +1,12 @@
 class ModelsController < ApplicationController
   include Foreman::Controller::AutoCompleteSearch
+  around_filter(:only => :index) do |controller, action|
+    search_error_handler( { :template_vars => ['host_counter'] } ) { action.call }
+  end
 
   def index
     @models  = Model.search_for(params[:search], :order => params[:order]).paginate(:page => params[:page])
-    @counter = Host.group(:model_id).where(:model_id => @models.pluck(:id)).count
+    @host_counter = Host.group(:model_id).where(:model_id => @models.pluck(:id)).count
   end
 
   def new

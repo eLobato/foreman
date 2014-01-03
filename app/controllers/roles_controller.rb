@@ -18,6 +18,9 @@
 class RolesController < ApplicationController
   include Foreman::Controller::AutoCompleteSearch
   before_filter :require_admin
+  around_filter(:only => :index) do |controller, action|
+    search_error_handler { action.call }
+  end
 
   def index
     @roles = Role.search_for(params[:search], :order => params[:order]).paginate :page => params[:page]

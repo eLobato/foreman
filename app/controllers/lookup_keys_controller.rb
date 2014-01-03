@@ -2,15 +2,12 @@ class LookupKeysController < ApplicationController
   include Foreman::Controller::AutoCompleteSearch
   before_filter :find_by_key, :except => :index
   before_filter :setup_search_options, :only => :index
+  around_filter(:only => :index) do |controller, action|
+    search_error_handler { action.call }
+  end
 
   def index
-    begin
-      values = LookupKey.search_for(params[:search], :order => params[:order])
-    rescue => e
-      error e.to_s
-      values = LookupKey.search_for ""
-    end
-    @lookup_keys = values.includes(:puppetclass).paginate(:page => params[:page])
+    @lookup_keys = LookupKey.search_for(params[:search], :order => params[:order]).includes(:puppetclass).paginate(:page => params[:page])
   end
 
   def edit

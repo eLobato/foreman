@@ -348,4 +348,31 @@ class ApplicationController < ActionController::Base
     errors.any? ? {:status => N_("Error"), :message => errors.full_messages.join('<br>')} : {:status => N_("OK"), :message =>""}
   end
 
+  def search_error_handler(options = {})
+    yield
+  rescue ScopedSearch::QueryNotSupported => e
+    error e.to_s
+    values = search_empty(options[:funnel])
+    respond_to do |format|
+      format.html do
+        instance_variable_set("@#{controller_name}", values)
+        set_custom_instance_variables(options) if options[:template_vars].present?
+
+        render params[:action]
+      end
+      format.json { render :json => values }
+    end
+  end
+
+  def search_empty(funnel = nil)
+    values = (funnel.present? ? model_of_controller.send(funnel) : model_of_controller)
+    values.search_for("").paginate(:page => params[:page])
+  end
+
+  def set_custom_instance_variables(options)
+    instance_variable_set('@host_counter', Host.group("#{controller_name.singularize}_id".to_sym).where("#{controller_name.singularize}_id".to_sym => instance_variable_get("@#{controller_name}").pluck(:id)).count) if options[:template_vars].include?('host_counter')
+
+    instance_variable_set('@keys_counter', Puppetclass.joins(:class_params).select('distinct environment_classes.lookup_key_id').group(:name).count) if options[:template_vars].include?('keys_counter')
+  end
+
 end

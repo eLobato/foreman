@@ -3,10 +3,13 @@ class EnvironmentsController < ApplicationController
   include Foreman::Controller::AutoCompleteSearch
 
   before_filter :find_by_name, :only => %w{edit update destroy}
+  around_filter(:only => :index) do |controller, action|
+    search_error_handler( { :template_vars => ['host_counter'] } ) { action.call }
+  end
 
   def index
     @environments = Environment.search_for(params[:search], :order => params[:order]).paginate(:page => params[:page])
-    @counter      = Host.group(:environment_id).where(:environment_id => @environments.pluck(:id)).count
+    @host_counter = Host.group(:environment_id).where(:environment_id => @environments.pluck(:id)).count
   end
 
   def new

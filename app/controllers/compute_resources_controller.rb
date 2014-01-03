@@ -3,15 +3,12 @@ class ComputeResourcesController < ApplicationController
   AJAX_REQUESTS = %w{hardware_profile_selected cluster_selected}
   before_filter :ajax_request, :only => AJAX_REQUESTS
   before_filter :find_by_id, :only => [:show, :edit, :update, :destroy, :ping, :associate] + AJAX_REQUESTS
+  around_filter(:only => :index) do |controller, action|
+    search_error_handler( { :funnel => 'my_compute_resources' } ) { action.call }
+  end
 
   def index
-    begin
-      values = ComputeResource.my_compute_resources.search_for(params[:search], :order => params[:order])
-    rescue => e
-      error e.to_s
-      values = ComputeResource.my_compute_resources.search_for ""
-    end
-    @compute_resources = values.paginate :page => params[:page]
+    @compute_resources = ComputeResource.my_compute_resources.search_for(params[:search], :order => params[:order]).paginate(:page => params[:page])
   end
 
   def new

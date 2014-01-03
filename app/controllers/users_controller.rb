@@ -6,17 +6,14 @@ class UsersController < ApplicationController
   skip_before_filter :require_login, :authorize, :session_expiry, :update_activity_time, :set_taxonomy, :set_gettext_locale_db, :only => [:login, :logout, :extlogout]
   skip_before_filter :authorize, :only => :extlogin
   after_filter       :update_activity_time, :only => :login
+  around_filter(:only => :index) do |controller, action|
+    search_error_handler { action.call }
+  end
 
   attr_accessor :editing_self
 
   def index
-    begin
-      users = User.search_for(params[:search], :order => params[:order])
-    rescue => e
-      error e.to_s
-      users = User.search_for('', :order => params[:order])
-    end
-    @users = users.includes(:auth_source).paginate(:page => params[:page])
+    @users = User.search_for(params[:search], :order => params[:order]).includes(:auth_source).paginate(:page => params[:page])
   end
 
   def new

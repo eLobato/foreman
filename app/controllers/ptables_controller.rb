@@ -1,6 +1,9 @@
 class PtablesController < ApplicationController
   include Foreman::Controller::AutoCompleteSearch
   before_filter :find_ptable, :only => %w{edit update destroy}
+  around_filter(:only => :index) do |controller, action|
+    search_error_handler { action.call }
+  end
 
   def index
     @ptables = Ptable.includes(:operatingsystems).search_for(params[:search], :order => params[:order]).paginate(:page => params[:page])

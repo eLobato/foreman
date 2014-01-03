@@ -5,15 +5,12 @@ class ConfigTemplatesController < ApplicationController
   before_filter :find_by_id, :only => [:edit, :update, :destroy]
   before_filter :load_history, :only => :edit
   before_filter :handle_template_upload, :only => [:create, :update]
+  around_filter(:only => :index) do |controller, action|
+    search_error_handler { action.call }
+  end
 
   def index
-    begin
-      values = ConfigTemplate.search_for(params[:search], :order => params[:order])
-    rescue => e
-      error e.to_s
-      values = ConfigTemplate.search_for ""
-    end
-    @config_templates = values.paginate(:page => params[:page]).includes(:template_kind, :template_combinations => [:hostgroup, :environment])
+    @config_templates = ConfigTemplate.search_for(params[:search], :order => params[:order]).paginate(:page => params[:page]).includes(:template_kind, :template_combinations => [:hostgroup, :environment])
   end
 
   def new

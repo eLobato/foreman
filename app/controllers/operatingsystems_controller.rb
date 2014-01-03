@@ -1,10 +1,13 @@
 class OperatingsystemsController < ApplicationController
   include Foreman::Controller::AutoCompleteSearch
   before_filter :find_os, :only => %w{edit update destroy bootfiles}
+  around_filter(:only => :index) do |controller, action|
+    search_error_handler( { :template_vars => ['host_counter'] } ) { action.call }
+  end
 
   def index
     @operatingsystems = Operatingsystem.search_for(params[:search], :order => params[:order]).paginate(:page => params[:page])
-    @counter = Host.group(:operatingsystem_id).where(:operatingsystem_id => @operatingsystems.pluck(:id)).count
+    @host_counter     = Host.group(:operatingsystem_id).where(:operatingsystem_id => @operatingsystems.pluck(:id)).count
   end
 
   def new

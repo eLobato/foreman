@@ -1,5 +1,8 @@
 class SubnetsController < ApplicationController
   include Foreman::Controller::AutoCompleteSearch
+  around_filter(:only => :index) do |controller, action|
+    search_error_handler { action.call }
+  end
 
   def index
     @subnets = Subnet.search_for(params[:search], :order => params[:order]).includes(:domains, :dhcp).paginate :page => params[:page]

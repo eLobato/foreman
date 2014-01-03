@@ -29,6 +29,10 @@ module Api
       not_found("#{error.message} (#{error.class})")
     }
 
+    rescue_from ScopedSearch::QueryNotSupported, :with => lambda { |error|
+      logger.info "#{error.message} (#{error.class})"
+      render_error 'param_error', :status => :bad_request, :locals => { :exception => error }
+    }
 
     def get_resource
       instance_variable_get :"@#{resource_name}" or raise 'no resource loaded'

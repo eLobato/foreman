@@ -3,16 +3,15 @@ class HostgroupsController < ApplicationController
   include Foreman::Controller::AutoCompleteSearch
 
   before_filter :find_hostgroup, :only => [:edit, :update, :destroy, :clone]
+  around_filter(:only => :index) do |controller, action|
+    options = {}
+    options[:funnel] = User.current.admin? ? nil : 'my_groups'
+    search_error_handler( options ) { action.call }
+  end
 
   def index
-    begin
-      my_groups = User.current.admin? ? Hostgroup : Hostgroup.my_groups
-      values = my_groups.search_for(params[:search], :order => params[:order])
-    rescue => e
-      error e.to_s
-      values = my_groups.search_for ""
-    end
-    @hostgroups = values.paginate :page => params[:page]
+    my_groups = User.current.admin? ? Hostgroup : Hostgroup.my_groups
+    @hostgroups = my_groups.search_for(params[:search], :order => params[:order]).paginate(:page => params[:page])
   end
 
   def new
