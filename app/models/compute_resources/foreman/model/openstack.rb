@@ -23,7 +23,7 @@ module Foreman::Model
     end
 
     def capabilities
-      [:image]
+      [:image, :volume]
     end
 
     def tenant
@@ -45,11 +45,16 @@ module Foreman::Model
       client.images
     end
 
+    def available_volumes
+      client.volumes
+    end
+
     def address_pools
       client.addresses.get_address_pools.map { |p| p["name"] }
     end
 
     def create_vm(args = {})
+debugger
       network = args.delete(:network)
       vm      = super(args)
       if network.present?
