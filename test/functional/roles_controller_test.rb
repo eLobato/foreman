@@ -44,6 +44,13 @@ class RolesControllerTest < ActionController::TestCase
     assert_template 'new'
   end
 
+  test 'creates role' do
+    post :create, { :role => {:name => 'test role'}}, set_session_user
+
+    assert_redirected_to roles_path
+    assert Role.find_by_name('test role')
+  end
+
   test 'get edit goes to right template' do
     get :edit, {:id => 1}, set_session_user
     assert_response :success
@@ -85,10 +92,10 @@ class RolesControllerTest < ActionController::TestCase
 
     test 'renders new page with hidden field original_role_id' do
       get :clone, { :id => @role.id } , set_session_user
-      assert_template :new
+      assert_template 'new'
     end
 
-    test 'original_role_id is used to create cloned role' do
+    test 'original_role_id is used to create cloned role if set' do
       params = { :role => {:name => 'clonedrole'},
                  :original_role_id => @role.id,
                  :cloned_role => true }
