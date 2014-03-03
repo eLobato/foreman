@@ -29,9 +29,7 @@ class RolesController < ApplicationController
   end
 
   def create
-    @role = Role.find(params[:original_role_id]).
-                 dup(:include => [:filters => :filterings])
-    @role.name = params[:role][:name]
+    @role = role_from_form
 
     if @role.save
       process_success
@@ -82,4 +80,17 @@ class RolesController < ApplicationController
         super
     end
   end
+
+  def role_from_form
+    if params[:original_role_id].present?
+      new_role = Role.find(params[:original_role_id]).
+                   dup(:include => [:filters => :filterings])
+      new_role.name = params[:role][:name]
+    else
+      new_role = Role.new(params[:role])
+    end
+
+    new_role
+  end
+
 end
