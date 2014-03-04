@@ -46,7 +46,11 @@ module Foreman::Model
     end
 
     def available_volumes
-      client.volumes
+      volumes.select { |volume| volume.status == 'available' }
+    end
+
+    def new_block
+      FogExtensions::Openstack::Server::BlockDeviceMapping::Block.new
     end
 
     def address_pools
@@ -54,7 +58,7 @@ module Foreman::Model
     end
 
     def create_vm(args = {})
-debugger
+      args[:block_device_mapping] = clean_up_block_device_mapping(args)
       network = args.delete(:network)
       vm      = super(args)
       if network.present?
@@ -158,5 +162,8 @@ debugger
       raise e
     end
 
+    def clean_up_block_device_mapping(args)
+      args[:block_device_mapping_attributes].to_a.map(&:last)[1..-1]
+    end
   end
 end
