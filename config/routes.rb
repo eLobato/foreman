@@ -229,6 +229,12 @@ Foreman::Application.routes.draw do
     resources :permissions, :only => [:index]
 
     resources :auth_source_ldaps, :except => [:show]
+
+    resources :external_usergroups do
+      member do
+        put 'refresh'
+      end
+    end
   end
 
   if SETTINGS[:unattended]
