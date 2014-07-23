@@ -12,8 +12,9 @@ class Hostgroup < ActiveRecord::Base
   has_many :users, :through => :user_hostgroups
   validates :name, :format => { :with => /\A(\S+\s?)+\Z/, :message => N_("can't contain trailing white spaces.")}
   validates :root_pass, :allow_blank => true, :length => {:minimum => 8, :message => _('should be 8 characters or more')}
-  has_many :group_parameters, :dependent => :destroy, :foreign_key => :reference_id
+  has_many :group_parameters, :dependent => :destroy, :foreign_key => :reference_id, :inverse_of => :hostgroup
   accepts_nested_attributes_for :group_parameters, :reject_if => lambda { |a| a[:value].blank? }, :allow_destroy => true
+  include ParameterValidators
   has_many_hosts
   has_many :template_combinations, :dependent => :destroy
   has_many :config_templates, :through => :template_combinations
@@ -166,6 +167,10 @@ class Hostgroup < ActiveRecord::Base
   def used_taxonomy_ids(type)
     return [] if new_record? && parent_id.blank?
     Host::Base.where(:hostgroup_id => self.path_ids).pluck(type).compact.uniq
+  end
+
+  def parameters_symbol
+    :group_parameters
   end
 
 end

@@ -939,6 +939,11 @@ context "location or organizations are not enabled" do
 
   test "can search hosts by inherited params from a hostgroup" do
     hg = FactoryGirl.create(:hostgroup, :with_parameter)
+
+    # This is a temporary fix because this line that is also in the trait :with_parameter is not working
+    parameter1 = FactoryGirl.create(:hostgroup_parameter, :hostgroup => hg)
+    hg.group_parameters = [parameter1]
+
     host = FactoryGirl.create(:host, :hostgroup => hg)
     parameter = hg.group_parameters.first
     results = Host.search_for(%Q{params.#{parameter.name} = "#{parameter.value}"})
@@ -949,6 +954,11 @@ context "location or organizations are not enabled" do
   test "can search hosts by inherited params from a parent hostgroup" do
     parent_hg = FactoryGirl.create(:hostgroup, :with_parameter)
     hg = FactoryGirl.create(:hostgroup, :parent => parent_hg)
+
+    # This is a temporary fix because this line that is also in the trait :with_parameter is not working
+    parameter1 = FactoryGirl.create(:hostgroup_parameter, :hostgroup => hg)
+    parent_hg.group_parameters = [parameter1]
+
     host = FactoryGirl.create(:host, :hostgroup => hg)
     parameter = parent_hg.group_parameters.first
     results = Host.search_for(%Q{params.#{parameter.name} = "#{parameter.value}"})

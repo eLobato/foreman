@@ -8,9 +8,10 @@ class Host::Managed < Host::Base
   has_many :puppetclasses, :through => :host_classes
   belongs_to :hostgroup
   has_many :reports, :dependent => :destroy, :foreign_key => :host_id
-  has_many :host_parameters, :dependent => :destroy, :foreign_key => :reference_id
+  has_many :host_parameters, :dependent => :destroy, :foreign_key => :reference_id, :inverse_of => :host
   has_many :parameters, :dependent => :destroy, :foreign_key => :reference_id, :class_name => "HostParameter"
   accepts_nested_attributes_for :host_parameters, :reject_if => lambda { |a| a[:value].blank? }, :allow_destroy => true
+  include ParameterValidators
   has_many :interfaces, :dependent => :destroy, :inverse_of => :host, :class_name => 'Nic::Base', :foreign_key => :host_id
   accepts_nested_attributes_for :interfaces, :reject_if => lambda { |a| a[:mac].blank? }, :allow_destroy => true
   belongs_to :owner, :polymorphic => true
@@ -936,6 +937,10 @@ class Host::Managed < Host::Base
 
   def update_lookup_value_fqdn_matchers
     LookupValue.where(:match => "fqdn=#{fqdn_was}").update_all(:match => lookup_value_match)
+  end
+
+  def parameters_symbol
+    :host_parameters
   end
 
 end

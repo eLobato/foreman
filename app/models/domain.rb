@@ -12,8 +12,9 @@ class Domain < ActiveRecord::Base
   has_many :subnet_domains, :dependent => :destroy
   has_many :subnets, :through => :subnet_domains
   belongs_to :dns, :class_name => "SmartProxy"
-  has_many :domain_parameters, :dependent => :destroy, :foreign_key => :reference_id
+  has_many :domain_parameters, :dependent => :destroy, :foreign_key => :reference_id, :inverse_of => :domain
   has_many :parameters, :dependent => :destroy, :foreign_key => :reference_id, :class_name => "DomainParameter"
+  include ParameterValidators
   has_and_belongs_to_many :users, :join_table => "user_domains"
   has_many :interfaces, :class_name => 'Nic::Base'
 
@@ -63,6 +64,10 @@ class Domain < ActiveRecord::Base
 
   def lookup query
     Net::DNS.lookup query, proxy, resolver
+  end
+
+  def parameters_symbol
+    :domain_parameters
   end
 
 end

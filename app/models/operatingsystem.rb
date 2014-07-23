@@ -19,15 +19,17 @@ class Operatingsystem < ActiveRecord::Base
     :reject_if => lambda { |v| v[:config_template_id].blank? }
 
   validates :major, :numericality => true, :presence => { :message => N_("Operating System version is required") }
-  has_many :os_parameters, :dependent => :destroy, :foreign_key => :reference_id
+  has_many :os_parameters, :dependent => :destroy, :foreign_key => :reference_id, :inverse_of => :operatingsystem
   has_many :parameters, :dependent => :destroy, :foreign_key => :reference_id, :class_name => "OsParameter"
   accepts_nested_attributes_for :os_parameters, :reject_if => lambda { |a| a[:value].blank? }, :allow_destroy => true
+  include ParameterValidators
   has_many :trends, :as => :trendable, :class_name => "ForemanTrend"
   attr_name :to_label
   validates :minor, :numericality => true, :allow_nil => true, :allow_blank => true
   validates :name, :presence => true, :format => {:with => /\A(\S+)\Z/, :message => N_("can't contain white spaces.")}
   validates :description, :uniqueness => true, :allow_blank => true
   before_validation :downcase_release_name
+
   #TODO: add validation for name and major uniqueness
 
   before_save :set_family
@@ -242,6 +244,10 @@ class Operatingsystem < ActiveRecord::Base
     eval("#{self.family}::PXEFILES").values.collect do |img|
       medium_vars_to_uri("#{medium.path}/#{pxedir}/#{img}", architecture.name, self)
     end
+  end
+
+  def parameters_symbol
+    :os_parameters
   end
 
 end
