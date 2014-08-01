@@ -8,7 +8,7 @@ module ParameterValidators
   def validate_parameters_names
     names = []
     errors = false
-    self.send(parameters_symbol).each do |param|
+    self.send(model_symbol).send(parameters_symbol).each do |param|
       next unless param.new_record? # normal validation would catch this
       if names.include?(param.name)
         param.errors[:name] = _('has already been taken')
@@ -17,6 +17,19 @@ module ParameterValidators
         names << param.name
       end
       self.errors[parameters_symbol] = _('Please ensure the following parameters name are unique') if errors
+    end
+  end
+
+  def parameters_symbol
+    self.class.to_s.tableize.to_sym
+  end
+
+  def model_symbol
+    case self
+    when OsParameter           then :operatingsystem
+    when GroupParameter        then :hostgroup
+    when OrganizationParameter then :organization
+    when LocationParameter     then :location
     end
   end
 
