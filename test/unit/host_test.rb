@@ -51,84 +51,37 @@ class HostTest < ActiveSupport::TestCase
     assert host.save
   end
 
-  test "should fix mac address hyphens" do
-    host = Host.create :name => "myhost", :mac => "aa-bb-cc-dd-ee-ff"
-    assert_equal "aa:bb:cc:dd:ee:ff", host.mac
-  end
-
-  test "should fix mac address" do
-    host = Host.create :name => "myhost", :mac => "aabbccddeeff"
-    assert_equal "aa:bb:cc:dd:ee:ff", host.mac
-  end
-
-  test "should keep valid mac address" do
-    host = Host.create :name => "myhost", :mac => "aa:bb:cc:dd:ee:ff"
-    assert_equal "aa:bb:cc:dd:ee:ff", host.mac
-  end
-
-  test "should fix 64-bit mac address hyphens" do
-    host = Host.create :name => "myhost", :mac => "aa-bb-cc-dd-ee-ff-00-11-22-33-44-55-66-77-88-99-aa-bb-cc-dd"
-    assert_equal "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99:aa:bb:cc:dd", host.mac
-  end
-
-  test "should fix 64-bit mac address" do
-    host = Host.create :name => "myhost", :mac => "aabbccddeeff00112233445566778899aabbccdd"
-    assert_equal "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99:aa:bb:cc:dd", host.mac
-  end
-
-  test "should keep valid 64-bit mac address" do
-    host = Host.create :name => "myhost", :mac => "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99:aa:bb:cc:dd"
-    assert_equal "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99:aa:bb:cc:dd", host.mac
-  end
-
-  test "should be valid using 64-bit mac address" do
-    host = FactoryGirl.create(:host)
-    host.mac = "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99:aa:bb:cc:dd"
-    host.save!
-    assert_equal true, host.valid?
-  end
-
-  test "should fix ip address if a leading zero is used" do
-    host = Host.create :name => "myhost", :mac => "aabbccddeeff", :ip => "123.01.02.03"
-    assert_equal "123.1.2.3", host.ip
-  end
-
   test "should add domain name to hostname" do
-    host = Host.create :name => "myhost", :mac => "aabbccddeeff", :ip => "123.01.02.03",
-      :domain => Domain.find_or_create_by_name("company.com")
+    host = Host.create :name => "myhost" :domain => Domain.find_or_create_by_name("company.com")
     assert_equal "myhost.company.com", host.name
   end
 
   test "should not add domain name to hostname if it already include it" do
-    host = Host.create :name => "myhost.company.com", :mac => "aabbccddeeff", :ip => "123.1.2.3",
-      :domain => Domain.find_or_create_by_name("company.com")
+    host = Host.create :name => "myhost.company.com", :domain => Domain.find_or_create_by_name("company.com")
     assert_equal "myhost.company.com", host.name
   end
 
   test "should add hostname if it contains domain name" do
-    host = Host.create :name => "myhost.company.com", :mac => "aabbccddeeff", :ip => "123.01.02.03",
-      :domain => Domain.find_or_create_by_name("company.com")
+    host = Host.create :name => "myhost.company.com", :domain => Domain.find_or_create_by_name("company.com")
     assert_equal "myhost.company.com", host.name
   end
 
   test "should not append domainname to fqdn" do
-    host = Host.create :name => "myhost.sub.comp.net", :mac => "aabbccddeeff", :ip => "123.01.02.03",
-      :domain => Domain.find_or_create_by_name("company.com"),
+    host = Host.create :name => "myhost.sub.comp.net", :domain => Domain.find_or_create_by_name("company.com"),
       :certname => "myhost.sub.comp.net",
       :managed => false
     assert_equal "myhost.sub.comp.net", host.name
   end
 
   test "should save hosts with full stop in their name" do
-    host = Host.create :name => "my.host.company.com", :mac => "aabbccddeeff", :ip => "123.01.02.03",
-      :domain => Domain.find_or_create_by_name("company.com")
+    host = Host.create :name => "my.host.company.com", :domain => Domain.find_or_create_by_name("company.com")
     assert_equal "my.host.company.com", host.name
   end
 
   test "sets compute attributes on create" do
     Host.any_instance.expects(:set_compute_attributes).once.returns(true)
-    Host.create! :name => "myfullhost", :mac => "aabbecddeeff", :ip => "2.3.4.3",
-      :domain => domains(:mydomain), :operatingsystem => operatingsystems(:redhat), :medium => media(:one),
+    Host.create! :name => "myfullhost", :domain => domains(:mydomain),
+      :operatingsystem => operatingsystems(:redhat), :medium => media(:one),
       :subnet => subnets(:one), :architecture => architectures(:x86_64), :puppet_proxy => smart_proxies(:puppetmaster),
       :environment => environments(:production), :disk => "empty partition"
   end
@@ -136,7 +89,7 @@ class HostTest < ActiveSupport::TestCase
   test "doesn't set compute attributes on update" do
     host = FactoryGirl.create(:host)
     Host.any_instance.expects(:set_compute_attributes).never
-    host.update_attributes!(:mac => "52:54:00:dd:ee:ff")
+    host.update_attributes!(:name => 'foo')
   end
 
   context "when unattended is false" do
@@ -149,19 +102,19 @@ class HostTest < ActiveSupport::TestCase
     end
 
     test "should be able to save hosts with full domain" do
-      host = Host.create :name => "myhost.foo", :mac => "aabbccddeeff", :ip => "123.01.02.03"
+      host = Host.create :name => "myhost.foo"
       assert_equal "myhost.foo", host.fqdn
     end
 
     test "should be able to save hosts with no domain" do
-      host = Host.create :name => "myhost", :mac => "aabbccddeeff", :ip => "123.01.02.03"
+      host = Host.create :name => "myhost"
       assert_equal "myhost", host.fqdn
     end
   end
 
   test "should be able to save host" do
-    host = Host.create :name => "myfullhost", :mac => "aabbecddeeff", :ip => "2.3.4.3",
-      :domain => domains(:mydomain), :operatingsystem => operatingsystems(:redhat), :medium => media(:one),
+    host = Host.create :name => "myfullhost", :domain => domains(:mydomain),
+      :operatingsystem => operatingsystems(:redhat), :medium => media(:one),
       :subnet => subnets(:one), :architecture => architectures(:x86_64), :puppet_proxy => smart_proxies(:puppetmaster),
       :environment => environments(:production), :disk => "empty partition"
     assert host.valid?
@@ -172,9 +125,9 @@ class HostTest < ActiveSupport::TestCase
     User.current = users(:one)
     User.current.roles << [roles(:manager)]
     assert_difference('LookupValue.count') do
-      assert Host.create! :name => "abc.mydomain.net", :mac => "aabbecddeeff", :ip => "2.3.4.3",
-      :domain => domains(:mydomain), :operatingsystem => operatingsystems(:redhat),
-      :subnet => subnets(:one), :architecture => architectures(:x86_64), :puppet_proxy => smart_proxies(:puppetmaster), :medium => media(:one),
+      assert Host.create! :name => "abc.mydomain.net", :domain => domains(:mydomain),
+        :operatingsystem => operatingsystems(:redhat), :subnet => subnets(:one),
+        :architecture => architectures(:x86_64), :puppet_proxy => smart_proxies(:puppetmaster), :medium => media(:one),
       :environment => environments(:production), :disk => "empty partition",
       :lookup_values_attributes => {"new_123456" => {"lookup_key_id" => lookup_keys(:complex).id, "value"=>"some_value", "match" => "fqdn=abc.mydomain.net"}}
     end
@@ -182,8 +135,8 @@ class HostTest < ActiveSupport::TestCase
 
   test "lookup value has right matcher for a host" do
     assert_difference('LookupValue.where(:lookup_key_id => lookup_keys(:five).id, :match => "fqdn=abc.mydomain.net").count') do
-      Host.create! :name => "abc", :mac => "aabbecddeeff", :ip => "2.3.4.3",
-        :domain => domains(:mydomain), :operatingsystem => operatingsystems(:redhat), :medium => media(:one),
+      Host.create! :name => "abc", :domain => domains(:mydomain),
+        :operatingsystem => operatingsystems(:redhat), :medium => media(:one),
         :subnet => subnets(:one), :architecture => architectures(:x86_64), :puppet_proxy => smart_proxies(:puppetmaster),
         :environment => environments(:production), :disk => "empty partition",
         :lookup_values_attributes => {"new_123456" => {"lookup_key_id" => lookup_keys(:five).id, "value"=>"some_value"}}
@@ -257,7 +210,8 @@ class HostTest < ActiveSupport::TestCase
     end
 
     test 'should find a host by certname not fqdn when provided' do
-      Host.new(:name => 'sinn1636.fail', :certname => 'sinn1636.lan.cert', :mac => 'e4:1f:13:cc:36:58').save(:validate => false)
+      Host.new(:name => 'sinn1636.fail', :certname => 'sinn1636.lan.cert').
+        save(:validate => false)
       assert Host.find_by_name('sinn1636.fail').ip.nil?
       # hostname in the json is sinn1636.lan, so if the facts have been updated for
       # this host, it's a successful identification by certname
@@ -368,7 +322,7 @@ class HostTest < ActiveSupport::TestCase
   end
 
   test "assign a host to a location" do
-    host = Host.create :name => "host 1", :mac => "aabbecddeeff", :ip => "5.5.5.5", :hostgroup => hostgroups(:common), :managed => false
+    host = Host.create :name => "host 1", :hostgroup => hostgroups(:common), :managed => false
     location = Location.create :name => "New York"
 
     host.location_id = location.id
@@ -376,7 +330,7 @@ class HostTest < ActiveSupport::TestCase
   end
 
   test "update a host's location" do
-    host = Host.create :name => "host 1", :mac => "aabbccddeeff", :ip => "5.5.5.5", :hostgroup => hostgroups(:common), :managed => false
+    host = Host.create :name => "host 1", :hostgroup => hostgroups(:common), :managed => false
     original_location = Location.create :name => "New York"
 
     host.location_id = original_location.id
@@ -390,7 +344,7 @@ class HostTest < ActiveSupport::TestCase
   end
 
   test "assign a host to an organization" do
-    host = Host.create :name => "host 1", :mac => "aabbecddeeff", :ip => "5.5.5.5", :hostgroup => hostgroups(:common), :managed => false
+    host = Host.create :name => "host 1", :hostgroup => hostgroups(:common), :managed => false
     organization = Organization.create :name => "Hosting client 1"
 
     host.organization_id = organization.id
@@ -398,7 +352,7 @@ class HostTest < ActiveSupport::TestCase
   end
 
   test "assign a host to both a location and an organization" do
-    host = Host.create :name => "host 1", :mac => "aabbccddeeff", :ip => "5.5.5.5", :hostgroup => hostgroups(:common), :managed => false
+    host = Host.create :name => "host 1", :hostgroup => hostgroups(:common), :managed => false
     location = Location.create :name => "Tel Aviv"
     organization = Organization.create :name => "Hosting client 1"
 
@@ -435,37 +389,35 @@ context "location or organizations are not enabled" do
 
   test "should not save if neither ptable or disk are defined when the host is managed" do
     if unattended?
-      host = Host.create :name => "myfullhost", :mac => "aabbecddeeff", :ip => "2.4.4.03",
-        :domain => domains(:mydomain), :operatingsystem => Operatingsystem.first, :subnet => subnets(:one), :medium => media(:one),
+      host = Host.create :name => "myfullhost", :domain => domains(:mydomain),
+        :operatingsystem => Operatingsystem.first, :subnet => subnets(:one), :medium => media(:one),
         :architecture => Architecture.first, :environment => Environment.first, :managed => true
       assert !host.valid?
     end
   end
 
   test "should save if neither ptable or disk are defined when the host is not managed" do
-    host = Host.create :name => "myfullhost", :mac => "aabbecddeeff", :ip => "2.3.4.03", :medium => media(:one),
+    host = Host.create :name => "myfullhost", :medium => media(:one),
       :domain => domains(:mydomain), :operatingsystem => operatingsystems(:redhat), :subnet => subnets(:one), :puppet_proxy => smart_proxies(:puppetmaster),
       :subnet => subnets(:one), :architecture => architectures(:x86_64), :environment => environments(:production), :managed => false
     assert host.valid?
   end
 
   test "should save if ptable is defined" do
-    host = Host.create :name => "myfullhost", :mac => "aabbecddeeff", :ip => "2.3.4.03",
-      :domain => domains(:mydomain), :operatingsystem => operatingsystems(:redhat), :puppet_proxy => smart_proxies(:puppetmaster), :medium => media(:one),
+    host = Host.create :name => "myfullhost", :domain => domains(:mydomain), :operatingsystem => operatingsystems(:redhat), :puppet_proxy => smart_proxies(:puppetmaster), :medium => media(:one),
       :subnet => subnets(:one), :architecture => architectures(:x86_64), :environment => environments(:production), :ptable => Ptable.first
     assert !host.new_record?
   end
 
   test "should save if disk is defined" do
-    host = Host.create :name => "myfullhost", :mac => "aabbecddeeff", :ip => "2.3.4.03",
-      :domain => domains(:mydomain), :operatingsystem => operatingsystems(:redhat), :subnet => subnets(:one), :medium => media(:one),
+    host = Host.create :name => "myfullhost", :domain => domains(:mydomain), :operatingsystem => operatingsystems(:redhat), :subnet => subnets(:one), :medium => media(:one),
       :architecture => architectures(:x86_64), :environment => environments(:production), :disk => "aaa", :puppet_proxy => smart_proxies(:puppetmaster)
     assert !host.new_record?
   end
 
   test "should not save if IP is not in the right subnet" do
     if unattended?
-      host = Host.create :name => "myfullhost", :mac => "aabbecddeeff", :ip => "123.05.02.03", :ptable => ptables(:one),
+      host = Host.create :name => "myfullhost", :ptable => ptables(:one),
         :domain => domains(:mydomain), :operatingsystem => Operatingsystem.first, :subnet => subnets(:one), :managed => true, :medium => media(:one),
         :architecture => Architecture.first, :environment => Environment.first, :ptable => Ptable.first, :puppet_proxy => smart_proxies(:puppetmaster)
       assert !host.valid?
@@ -473,7 +425,7 @@ context "location or organizations are not enabled" do
   end
 
   test "should save if owner_type is User or Usergroup" do
-    host = Host.new :name => "myfullhost", :mac => "aabbecddeeff", :ip => "2.3.4.03", :ptable => ptables(:one), :medium => media(:one),
+    host = Host.new :name => "myfullhost", :ptable => ptables(:one), :medium => media(:one),
       :domain => domains(:mydomain), :operatingsystem => operatingsystems(:redhat), :subnet => subnets(:one), :puppet_proxy => smart_proxies(:puppetmaster),
       :subnet => subnets(:one), :architecture => architectures(:x86_64), :environment => environments(:production), :managed => true,
       :owner_type => "User", :root_pass => "xybxa6JUkz63w"
@@ -481,7 +433,7 @@ context "location or organizations are not enabled" do
   end
 
   test "should not save if owner_type is not User or Usergroup" do
-    host = Host.new :name => "myfullhost", :mac => "aabbecddeeff", :ip => "2.3.4.03", :medium => media(:one),
+    host = Host.new :name => "myfullhost", :medium => media(:one),
       :domain => domains(:mydomain), :operatingsystem => operatingsystems(:redhat), :subnet => subnets(:one), :puppet_proxy => smart_proxies(:puppetmaster),
       :subnet => subnets(:one), :architecture => architectures(:x86_64), :environment => environments(:production), :managed => true,
       :owner_type => "UserGr(up" # should be Usergroup
@@ -489,7 +441,7 @@ context "location or organizations are not enabled" do
   end
 
   test "should not save if installation media is missing" do
-    host = Host.new :name => "myfullhost", :mac => "aabbecddeeff", :ip => "2.3.4.03", :ptable => ptables(:one),
+    host = Host.new :name => "myfullhost", :ptable => ptables(:one),
       :domain => domains(:mydomain), :operatingsystem => operatingsystems(:redhat), :subnet => subnets(:one), :puppet_proxy => smart_proxies(:puppetmaster),
       :subnet => subnets(:one), :architecture => architectures(:x86_64), :environment => environments(:production), :managed => true, :build => true,
       :owner_type => "User", :root_pass => "xybxa6JUkz63w"
@@ -498,7 +450,7 @@ context "location or organizations are not enabled" do
   end
 
   test "should save if owner_type is empty and Host is unmanaged" do
-    host = Host.new :name => "myfullhost", :mac => "aabbecddeeff", :ip => "2.3.4.03", :medium => media(:one),
+    host = Host.new :name => "myfullhost", :medium => media(:one),
       :domain => domains(:mydomain), :operatingsystem => operatingsystems(:redhat), :subnet => subnets(:one), :puppet_proxy => smart_proxies(:puppetmaster),
       :subnet => subnets(:one), :architecture => architectures(:x86_64), :environment => environments(:production), :managed => false
     assert host.valid?
@@ -509,7 +461,7 @@ context "location or organizations are not enabled" do
     Setting[:Enable_Smart_Variables_in_ENC] = true
     # create a dummy node
     Parameter.destroy_all
-    host = Host.create :name => "myfullhost", :mac => "aabbacddeeff", :ip => "2.3.4.12", :medium => media(:one),
+    host = Host.create :name => "myfullhost", :medium => media(:one),
       :domain => domains(:mydomain), :operatingsystem => operatingsystems(:redhat), :subnet => subnets(:one),
       :architecture => architectures(:x86_64), :environment => environments(:production), :disk => "aaa",
       :puppet_proxy => smart_proxies(:puppetmaster)

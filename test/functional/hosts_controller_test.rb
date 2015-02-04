@@ -42,8 +42,6 @@ class HostsControllerTest < ActionController::TestCase
     assert_difference 'Host.count' do
       post :create, { :commit => "Create",
         :host => {:name => "myotherfullhost",
-          :mac => "aabbecddee06",
-          :ip => "2.3.4.125",
           :domain_id => domains(:mydomain).id,
           :operatingsystem_id => operatingsystems(:redhat).id,
           :architecture_id => architectures(:x86_64).id,
@@ -178,8 +176,6 @@ class HostsControllerTest < ActionController::TestCase
     ComputeResource.any_instance.stubs(:vm_compute_attributes_for).returns({})
     get :clone, {:id => Host.first.name}, set_session_user
     refute assigns(:host).name
-    refute assigns(:host).ip
-    refute assigns(:host).mac
   end
 
   def setup_user(operation, type = 'hosts', filter = nil)
@@ -859,8 +855,6 @@ class HostsControllerTest < ActionController::TestCase
     User.current = users(:admin)
     disable_orchestration
     @host = Host.create(:name               => "myfullhost",
-                        :mac                => "aabbecddeeff",
-                        :ip                 => "2.3.4.99",
                         :domain_id          => domains(:mydomain).id,
                         :operatingsystem_id => operatingsystems(:redhat).id,
                         :architecture_id    => architectures(:x86_64).id,

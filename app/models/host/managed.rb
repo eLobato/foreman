@@ -57,7 +57,7 @@ class Host::Managed < Host::Base
 
   class Jail < ::Safemode::Jail
     allow :name, :diskLayout, :puppetmaster, :puppet_ca_server, :operatingsystem, :os, :environment, :ptable, :hostgroup,
-      :organization, :url_for_boot, :params, :info, :hostgroup, :compute_resource, :domain, :ip, :mac, :shortname, :architecture,
+      :organization, :url_for_boot, :params, :info, :hostgroup, :compute_resource, :domain, :shortname, :architecture,
       :model, :certname, :capabilities, :provider, :subnet, :token, :location, :organization, :provision_method,
       :image_build?, :pxe_build?, :otp, :realm, :param_true?, :param_false?, :nil?, :indent, :primary_interface,
       :provision_interface, :interfaces, :bond_interfaces, :interfaces_with_identifier, :managed_interfaces, :facts, :facts_hash, :root_pass,
@@ -353,8 +353,8 @@ class Host::Managed < Host::Base
     end
 
     if Setting[:ignore_puppet_facts_for_provisioning]
-      param["ip"]  = ip
-      param["mac"] = mac
+      param["ip"]  = primary_interface.ip
+      param["mac"] = primary_interface.mac
     end
     param['foreman_subnets'] = (([subnet] + interfaces.map(&:subnet)).compact.map(&:to_enc)).uniq
     param['foreman_interfaces'] = interfaces.map(&:to_enc)
@@ -621,7 +621,7 @@ class Host::Managed < Host::Base
   def clone
     # do not copy system specific attributes
     host = self.deep_clone(:include => [:host_config_groups, :host_classes, :host_parameters],
-                           :except  => [:name, :mac, :ip, :uuid, :certname, :last_report])
+                           :except  => [:name, :uuid, :certname, :last_report])
     self.interfaces.each do |nic|
       host.interfaces << nic.clone
     end
