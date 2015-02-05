@@ -724,4 +724,13 @@ class HostsController < ApplicationController
       end
     end
   end
+
+  def clean_interfaces_attributes
+    attributes = params[:host].dup
+    if params[:host][:interfaces_attributes]
+      attributes[:interfaces_attributes] = params[:host][:interfaces_attributes].dup.except(:created_at, :updated_at, :attrs)
+      attributes[:interfaces_attributes][:id] = nil
+    end
+    attributes
+  end
 end
