@@ -10,8 +10,7 @@
     :mode  => 'block'
   }
   config.csp = {
- # I fully disabled this, but we should inject the header to allow frame_src host.fqdn momentarily, to load the console or journalctl from cockpit
-    :enforce     => false,
+    :enforce     => true,
     :default_src => 'self',
     :frame_src   => 'self',
     :connect_src => 'self ws: wss:',

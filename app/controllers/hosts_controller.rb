@@ -26,6 +26,7 @@ class HostsController < ApplicationController
   before_filter :taxonomy_scope, :only => [:new, :edit] + AJAX_REQUESTS
   before_filter :set_host_type, :only => [:update]
   before_filter :find_multiple, :only => MULTIPLE_ACTIONS
+  before_filter :allow_cockpit_iframe, :only => [:console, :journal]
   helper :hosts, :reports, :interfaces
 
   def index(title = nil)
@@ -730,5 +731,9 @@ class HostsController < ApplicationController
   # is rendered differently and the next save operation will be forced
   def offer_to_overwrite_conflicts
     @host.overwrite = "true" if @host.errors.any? and @host.errors.are_all_conflicts?
+  end
+
+  def allow_cockpit_iframe
+    response.headers['Content-Security-Policy'].sub!("frame-src 'self'", "frame-src 'self' http://#{@host.primary_interface.fqdn}:9090")
   end
 end
