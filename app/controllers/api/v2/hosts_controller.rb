@@ -79,8 +79,9 @@ module Api
       param_group :host, :as => :create
 
       def create
-        @host = Host.new(host_attributes(params[:host]))
-        @host.managed = true if (params[:host] && params[:host][:managed].nil?)
+        host_params = host_attributes(foreman_params)
+        @host = Host.new(host_params)
+        @host.managed = true if (foreman_params[:managed].nil?)
         merge_interfaces(@host)
 
         forward_request_url
@@ -94,7 +95,7 @@ module Api
       param_group :host
 
       def update
-        @host.attributes = host_attributes(params[:host])
+        @host.attributes = host_attributes(foreman_params)
         merge_interfaces(@host)
 
         process_response @host.save
@@ -210,26 +211,26 @@ Return the host's compute attributes that can be used to create a clone of this 
         merge.run(host.interfaces, host.compute_resource.try(:compute_profile_for, host.compute_profile_id))
       end
 
-      def host_attributes(params)
-        return {} if params.nil?
+      def host_attributes(parameters)
+        return {} if parameters.nil?
 
-        params = params.deep_clone
-        if params[:interfaces_attributes]
+        parameters = parameters.deep_clone
+        if parameters[:interfaces_attributes]
           # handle both hash and array styles of nested attributes
-          if params[:interfaces_attributes].is_a? Hash
-            params[:interfaces_attributes] = params[:interfaces_attributes].values
+          if params[:host][:interfaces_attributes].is_a? Hash
+            parameters[:interfaces_attributes] = params[:host][:interfaces_attributes].values
           end
           # map interface types
-          params[:interfaces_attributes] = params[:interfaces_attributes].map do |nic_attr|
+          parameters[:interfaces_attributes] = parameters[:interfaces_attributes].map do |nic_attr|
             interface_attributes(nic_attr)
           end
         end
-        params
+        parameters
       end
 
-      def interface_attributes(params)
-        params[:type] = InterfaceTypeMapper.map(params[:type])
-        params
+      def interface_attributes(parameters)
+        parameters[:type] = InterfaceTypeMapper.map(parameters[:type])
+        parameters
       end
 
       def action_permission

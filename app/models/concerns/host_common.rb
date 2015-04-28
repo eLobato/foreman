@@ -8,7 +8,7 @@ module HostCommon
   included do
     include CounterCacheFix
 
-    counter_cache = "#{model_name.split(":").first.pluralize.downcase}_count".to_sym  # e.g. :hosts_count
+    counter_cache = "#{model_name.to_s.split(":").first.pluralize.downcase}_count".to_sym  # e.g. :hosts_count
 
     belongs_to :architecture,    :counter_cache => counter_cache
     belongs_to :environment,     :counter_cache => counter_cache
@@ -30,9 +30,11 @@ module HostCommon
 
     alias_method :all_puppetclasses, :classes
 
-    has_many :lookup_values, :finder_sql => Proc.new { LookupValue.where('lookup_values.match' => lookup_value_match).to_sql }, :dependent => :destroy, :validate => false
+    has_many :lookup_values, lambda {|i| where('lookup_values.match' => i.send(:lookup_value_match)) }, :primary_key => nil, :foreign_key => nil, :validate => false
     # See "def lookup_values_attributes=" under, for the implementation of accepts_nested_attributes_for :lookup_values
     accepts_nested_attributes_for :lookup_values
+    after_destroy :destroy_lookup_values
+
     # Replacement of accepts_nested_attributes_for :lookup_values,
     # to work around the lack of `host_id` column in lookup_values.
     def lookup_values_attributes=(lookup_values_attributes)
@@ -49,6 +51,14 @@ module HostCommon
           LookupValue.create(attr.merge(:match => lookup_value_match, :host_or_hostgroup => self))
         end
       end
+    end
+
+    def lookup_values
+      LookupValue.where('lookup_values.match' => lookup_value_match)
+    end
+
+    def destroy_lookup_values
+      lookup_values.destroy_all
     end
   end
 
@@ -114,18 +124,19 @@ module HostCommon
                        end
 
     if unencrypted_pass.present?
-      is_actually_encrypted = if PasswordCrypt.crypt_gnu_compatible?
-                                unencrypted_pass.match('^\$\d+\$.+\$.+')
-                              else
-                                unencrypted_pass.starts_with?("$")
-                              end
+      if PasswordCrypt.passw_crypt("test_this").match('^\$\d+\$.+\$.+')
+        is_actually_encrypted = unencrypted_pass.match('^\$\d+\$.+\$.+')
+      else
+        is_actually_encrypted = unencrypted_pass.starts_with?("$")
+      end
 
       if is_actually_encrypted
-        self.root_pass =  self.grub_pass = unencrypted_pass
+        self.root_pass = unencrypted_pass
       else
         self.root_pass = operatingsystem.nil? ? PasswordCrypt.passw_crypt(unencrypted_pass) : PasswordCrypt.passw_crypt(unencrypted_pass, operatingsystem.password_hash)
-        self.grub_pass = PasswordCrypt.grub2_passw_crypt(unencrypted_pass)
       end
+
+      self.grub_pass = !!(is_actually_encrypted) ? unencrypted_pass : PasswordCrypt.grub2_passw_crypt(unencrypted_pass)
     end
   end
 
@@ -190,7 +201,7 @@ module HostCommon
   end
 
   def available_puppetclasses
-    return Puppetclass.scoped if environment_id.blank?
+    return Puppetclass.all if environment_id.blank?
     environment.puppetclasses - parent_classes
   end
 

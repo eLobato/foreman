@@ -6,7 +6,7 @@ class WidgetTest < ActiveSupport::TestCase
   end
 
   test 'new user should have no widgets' do
-    assert_blank(@user.widgets)
+    assert @user.widgets.blank?
   end
 
   test 'reset to default should add default widgets to user' do
@@ -26,7 +26,7 @@ class WidgetTest < ActiveSupport::TestCase
     assert_equal widget.col, 1
     assert_equal widget.row, 1
     refute widget.hide
-    assert_blank widget.data
+    assert widget.data.blank?
     assert_equal widget.user_id, @user.id
   end
 

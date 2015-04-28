@@ -39,7 +39,7 @@ module Api
       param_group :auth_source_ldap, :as => :create
 
       def create
-        @auth_source_ldap = AuthSourceLdap.new(params[:auth_source_ldap])
+        @auth_source_ldap = AuthSourceLdap.new(foreman_params)
         process_response @auth_source_ldap.save
       end
 
@@ -48,7 +48,7 @@ module Api
       param_group :auth_source_ldap
 
       def update
-        process_response @auth_source_ldap.update_attributes(params[:auth_source_ldap])
+        process_response @auth_source_ldap.update_attributes(foreman_params)
       end
 
       api :DELETE, "/auth_source_ldaps/:id/", N_("Delete an LDAP authentication source")

@@ -1,15 +1,10 @@
 require 'test_helper'
 
 class ComputeResourcesVmsControllerTest < ActionController::TestCase
-  setup do
-#    Fog.mock!
+  before do
     @compute_resource = compute_resources(:mycompute)
     @your_compute_resource = compute_resources(:yourcompute)
     get_test_vm
-  end
-
-  teardown do
-#    Fog.unmock!
   end
 
   def setup_user(operation, type = 'compute_resources_vms')
@@ -106,6 +101,7 @@ class ComputeResourcesVmsControllerTest < ActionController::TestCase
   end
 
   test "should destroy vm" do
+    Fog.mock!
     # We have to work on a new vm, instead of deleting the test one,
     # which is automatically created for each new connection.
     # Another solution would be to disconnect between each test,
@@ -120,6 +116,7 @@ class ComputeResourcesVmsControllerTest < ActionController::TestCase
     end
 
     assert_redirected_to compute_resource_vms_path
+    Fog.unmock!
   end
 
   test "should not power vm when not permitted" do

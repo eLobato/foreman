@@ -38,8 +38,11 @@ class HostConfigGroupTest < ActiveSupport::TestCase
     setup do
       @host = FactoryGirl.create(:host)
       @hostgroup = FactoryGirl.create(:hostgroup)
-      @host.update_attribute(:id, 1)
-      @hostgroup.update_attribute(:id, 1)
+      if @host.id > @hostgroup.id
+        @hostgroup = FactoryGirl.create(:hostgroup, :id => @host.id)
+      elsif @host.id != @hostgroup.id
+        @host = FactoryGirl.create(:host, :id => @hostgroup.id)
+      end
       @config_group = FactoryGirl.create(:config_group)
     end
 

@@ -21,9 +21,15 @@ module FindCommon
     @resource_scope ||= begin
       options[:controller] ||= controller_permission
       options[:permission] ||= "#{action_permission}_#{options[:controller]}"
-      scope = resource_class.scoped
-      if resource_class.respond_to?(:authorized)
-        scope.authorized(options[:permission], resource_class)
+      scope = resource_class.all
+      scope = if resource_class.respond_to?(:authorized)
+                scope.authorized(options[:permission], resource_class)
+              else
+                scope
+              end
+
+      if scope.respond_to?(:friendly)
+        scope.friendly
       else
         scope
       end

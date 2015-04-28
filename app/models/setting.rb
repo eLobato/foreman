@@ -18,8 +18,6 @@ class Setting < ActiveRecord::Base
     end
   end
 
-  attr_accessible :name, :value, :description, :category, :settings_type, :default
-
   validates_lengths_from_database
   # audit the changes to this model
   audited :only => [:value], :on => [:update], :allow_mass_assignment => true
@@ -63,7 +61,7 @@ class Setting < ActiveRecord::Base
 
   def self.[]=(name, value)
     name   = name.to_s
-    record = find_or_create_by_name name
+    record = find_or_create_by(:name => name)
     record.value = value
     record.save!
   end

@@ -5,8 +5,8 @@ class OperatingsystemTest < ActiveSupport::TestCase
   setup do
     User.current = users :admin
     Operatingsystem.all.each do |o| #because we load from fixtures, counters aren't updated
-      Operatingsystem.reset_counters(o.id,:hosts)
-      Operatingsystem.reset_counters(o.id,:hostgroups)
+      #Operatingsystem.reset_counters(o.id,:hosts)
+      #Operatingsystem.reset_counters(o.id,:hostgroups)
     end
   end
 
@@ -211,7 +211,7 @@ class OperatingsystemTest < ActiveSupport::TestCase
     host = FactoryGirl.create(:host)
     os = operatingsystems(:ubuntu1010)
     assert_difference "os.hosts_count" do
-      host.update_attribute(:operatingsystem, os)
+      host.update_attributes(:operatingsystem => os)
       os.reload
     end
   end
