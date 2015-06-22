@@ -69,7 +69,9 @@
       <p/>
       <%= render "puppetclasses/classes_parameters", { :obj => @hostgroup } %>
       <p/>
-      <%= render "common_parameters/puppetclasses_parameters", :f => f %>
+      <%= render "common_parameters/inherited_parameters", :inherited_parameters => @hostgroup.inherited_params(true) %>
+      <h6><%= _('Host group parameters') %></h6>
+      <p/>
       <p/>
       <h4><%= _('Host group parameters') %></h4>
       <p/>
@@ -83,6 +85,5 @@
     <%= render "taxonomies/loc_org_tabs", :f => f, :obj => @hostgroup %>
   </div>
 
-  <%= f.hidden_field :id %>
   <%= submit_or_cancel f %>
 <% end %>

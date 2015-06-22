@@ -1,8 +1,12 @@
 require 'test_helper'
 
-class PtableTest < ActionDispatch::IntegrationTest
+class PtableIntegrationTest < ActionDispatch::IntegrationTest
   setup do
     @ptable = FactoryGirl.create(:ptable, :ubuntu, :name => 'ubuntu default')
+  end
+
+  test "index page" do
+    assert_index_page(ptables_path,"Partition Tables","New Partition Table")
   end
 
   test "index page" do

@@ -21,7 +21,7 @@ class Host::Managed < Host::Base
   def self.complete_for(query, opts = {})
     matcher = /(\s*(?:(?:user\.[a-z]+)|owner)\s*[=~])\s*(\S*)\s*\z/
     matches = matcher.match(query)
-    output = super(query, opts)
+    output = super
     if matches.present? && 'current_user'.starts_with?(matches[2])
       current_user_result = query.sub(matcher, '\1 current_user')
       output = [current_user_result] + output
@@ -65,9 +65,8 @@ class Host::Managed < Host::Base
 
   attr_reader :cached_host_params
 
-  scope :recent,      lambda { |*args| {:conditions => ["last_report > ?", (args.first || (Setting[:puppet_interval] + Setting[:outofsync_interval]).minutes.ago)]} }
-  scope :out_of_sync, lambda { |*args| {:conditions => ["last_report < ? and enabled != ?", (args.first || (Setting[:puppet_interval] + Setting[:outofsync_interval]).minutes.ago), false]} }
-
+  scope :recent,      lambda { |*args| where(["last_report > ?", (args.first || (Setting[:puppet_interval] + Setting[:outofsync_interval]).minutes.ago)]) }
+  scope :out_of_sync, lambda { |*args| where(["last_report < ? and enabled != ?", (args.first || (Setting[:puppet_interval] + Setting[:outofsync_interval]).minutes.ago), false]) }
   scope :with_os, lambda { where('hosts.operatingsystem_id IS NOT NULL') }
 
   scope :with_error, lambda { where("(puppet_status > 0) and
@@ -516,7 +515,7 @@ class Host::Managed < Host::Base
   def self.count_distribution(association)
     output = []
     data = group("#{Host.table_name}.#{association}_id").reorder('').count
-    associations = association.to_s.camelize.constantize.where(:id => data.keys).all
+    associations = association.to_s.camelize.constantize.where(:id => data.keys).to_a
     data.each do |k,v|
       begin
         output << {:label => associations.detect {|a| a.id == k }.to_label, :data => v }  unless v == 0
@@ -632,7 +631,7 @@ class Host::Managed < Host::Base
   def clone
     # do not copy system specific attributes
     host = self.deep_clone(:include => [:host_config_groups, :host_classes, :host_parameters],
-                           :except  => [:name, :mac, :ip, :uuid, :certname, :last_report])
+                           :except  => [:name, :uuid, :certname, :last_report])
     self.interfaces.each do |nic|
       host.interfaces << nic.clone
     end
@@ -772,7 +771,7 @@ class Host::Managed < Host::Base
               else
                 uuid       = self.compute_attributes[cr.image_param_name]
                 image_kind = images.find_by_uuid(uuid).try(:user_data) ? 'user_data' : 'finish'
-                [TemplateKind.find(image_kind)]
+                [TemplateKind.friendly.find(image_kind)]
               end
             else
               TemplateKind.all
@@ -803,6 +802,22 @@ class Host::Managed < Host::Base
   def setup_clone
     return if new_record?
     @old = super { |clone| clone.interfaces = self.interfaces.map {|i| setup_object_clone(i) } }
+  end
+
+  # converts a name into ip address using DNS.
+  # if we are managing DNS, we can query the correct DNS server
+  # otherwise, use normal systems dns settings to resolv
+  def to_ip_address(name_or_ip)
+    return name_or_ip if name_or_ip =~ Net::Validations::IP_REGEXP
+    if dns_ptr_record
+      lookup = dns_ptr_record.dns_lookup(name_or_ip)
+      return lookup.ip unless lookup.nil?
+    end
+    # fall back to normal dns resolution
+    domain.resolver.getaddress(name_or_ip).to_s
+  rescue => e
+    logger.warn "Unable to find IP address for '#{name_or_ip}': #{e}"
+    raise ::Foreman::WrappedException.new(e, N_("Unable to find IP address for '%s'"), name_or_ip)
   end
 
   private
@@ -869,22 +884,6 @@ class Host::Managed < Host::Base
   # puppet report status table column name
   def self.report_status
     "puppet_status"
-  end
-
-  # converts a name into ip address using DNS.
-  # if we are managing DNS, we can query the correct DNS server
-  # otherwise, use normal systems dns settings to resolv
-  def to_ip_address(name_or_ip)
-    return name_or_ip if name_or_ip =~ Net::Validations::IP_REGEXP
-    if dns_ptr_record
-      lookup = dns_ptr_record.dns_lookup(name_or_ip)
-      return lookup.ip unless lookup.nil?
-    end
-    # fall back to normal dns resolution
-    domain.resolver.getaddress(name_or_ip).to_s
-  rescue => e
-    logger.warn "Unable to find IP address for '#{name_or_ip}': #{e}"
-    raise ::Foreman::WrappedException.new(e, N_("Unable to find IP address for '%s'"), name_or_ip)
   end
 
   def set_default_user

@@ -147,7 +147,7 @@ class ApplicationController < ActionController::Base
   def resource_base
     @resource_base ||= model_of_controller.respond_to?(:authorized) ?
         model_of_controller.authorized(current_permission) :
-        model_of_controller.scoped
+        model_of_controller.all
   end
 
   def notice(notice)

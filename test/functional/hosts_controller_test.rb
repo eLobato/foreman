@@ -10,7 +10,7 @@ class HostsControllerTest < ActionController::TestCase
 
   test 'create_invalid' do
     Host.any_instance.stubs(:valid?).returns(false)
-    post :create, {}, set_session_user
+    post :create, {:host => {:name => nil}}, set_session_user
     assert_template 'new'
   end
 
@@ -76,13 +76,13 @@ class HostsControllerTest < ActionController::TestCase
 
   def test_update_invalid
     Host.any_instance.stubs(:valid?).returns(false)
-    put :update, {:id => Host.first.name, :host => {}}, set_session_user
+    put :update, {:id => Host.first.name, :host => {:disk => 'ntfs'}}, set_session_user
     assert_template 'edit'
   end
 
   def test_update_valid
     Host.any_instance.stubs(:valid?).returns(true)
-    put :update, {:id => Host.first.name, :host => {}}, set_session_user
+    put :update, {:id => Host.first.name, :host => {:name => "Updated_#{Host.first.name}"}}, set_session_user
     assert_redirected_to host_url(assigns(:host))
   end
 
@@ -97,14 +97,14 @@ class HostsControllerTest < ActionController::TestCase
     Resolv.any_instance.stubs(:getnames).returns(['else.where'])
     get :externalNodes, {:name => @host.name}, set_session_user
     assert_response :success
-    assert_template :text => @host.info.to_yaml.gsub("\n","<br/>")
+    assert response.body == "<pre>#{ERB::Util.html_escape(@host.info.to_yaml)}</pre>"
   end
 
   test "externalNodes should render yml request correctly" do
     Resolv.any_instance.stubs(:getnames).returns(['else.where'])
     get :externalNodes, {:name => @host.name, :format => "yml"}, set_session_user
     assert_response :success
-    assert_template :text => @host.info.to_yaml
+    assert response.body == @host.info.to_yaml
   end
 
   test "when host is not saved after setBuild, the flash should inform it" do
@@ -246,7 +246,7 @@ class HostsControllerTest < ActionController::TestCase
   test 'user with edit host rights and facts are set should succeed in viewing host1 but fail for host2' do
     setup_user_and_host "view", "facts.architecture = \"x86_64\""
     as_admin do
-      fn_id = FactName.find_or_create_by_name("architecture").id
+      fn_id = FactName.find_or_create_by(:name => "architecture").id
       FactValue.create! :host => @host1, :fact_name_id => fn_id, :value    => "x86_64"
       FactValue.create! :host => @host2, :fact_name_id => fn_id, :value    => "i386"
     end
@@ -748,23 +748,22 @@ class HostsControllerTest < ActionController::TestCase
   end
 
   test "can change sti type to valid subtype" do
-    class Host::Valid < Host::Managed; end
-    host = FactoryGirl.create(:host)
-    put :update, { :commit => "Update", :id => host.name, :host => {:type => "Host::Valid"} }, set_session_user
-    host = Host::Base.find(host.id)
-    assert_equal "Host::Valid", host.type
+    class Host::Valid < Host::Base; end
+    patch :update, { :commit => "Update", :id => @host.name, :host => {:type => "Host::Valid"} }, set_session_user
+    @host = Host::Base.find(@host.id)
+    assert_equal "Host::Valid", @host.type
   end
 
   test "cannot change sti type to invalid subtype" do
     old_type = @host.type
-    put :update, { :commit => "Update", :id => @host.name, :host => {:type => "Host::Notvalid"} }, set_session_user
+    patch :update, { :commit => "Update", :id => @host.name, :host => {:type => "Host::Notvalid", :disk => @host.disk } }, set_session_user
     @host = Host.find(@host.id)
     assert_equal old_type, @host.type
   end
 
   test "blank root password submitted does not erase existing password" do
     old_root_pass = @host.root_pass
-    put :update, { :commit => "Update", :id => @host.name, :host => {:root_pass => ''} }, set_session_user
+    put :update, { :commit => "Update", :id => @host.name, :host => {:root_pass => '', :provider => 'IPMI'} }, set_session_user
     @host = Host.find(@host.id)
     assert_equal old_root_pass, @host.root_pass
   end

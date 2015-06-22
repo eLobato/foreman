@@ -38,7 +38,7 @@ module Api
       param_group :ptable, :as => :create
 
       def create
-        @ptable = Ptable.new(params[:ptable])
+        @ptable = Ptable.new(foreman_params)
         process_response @ptable.save
       end
 
@@ -55,7 +55,7 @@ module Api
       param_group :ptable
 
       def update
-        process_response @ptable.update_attributes(params[:ptable])
+        process_response @ptable.update_attributes(foreman_params)
       end
 
       api :DELETE, "/ptables/:id/", N_("Delete a partition table")

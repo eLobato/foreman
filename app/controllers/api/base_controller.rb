@@ -219,6 +219,7 @@ module Api
             model = md[1].classify.constantize
             controller = md[1].pluralize
             authorized_scope = model.authorized("#{action_permission}_#{controller}", model)
+            authorized_scope = authorized_scope.friendly if authorized_scope.respond_to?(:friendly)
             @nested_obj = begin
               authorized_scope.find(params[param])
             rescue ActiveRecord::RecordNotFound
