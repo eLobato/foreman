@@ -63,7 +63,11 @@ module Api
       param_group :puppetclass, :as => :create
 
       def create
+<<<<<<< HEAD
         @puppetclass = Puppetclass.new(foreman_params)
+=======
+        @puppetclass = Puppetclass.new(safe_params)
+>>>>>>> Refs #3917 - Feed strong_params attributes with Apipie
         process_response @puppetclass.save
       end
 
@@ -72,7 +76,11 @@ module Api
       param_group :puppetclass
 
       def update
+<<<<<<< HEAD
         process_response @puppetclass.update_attributes(foreman_params)
+=======
+        process_response @puppetclass.update_attributes(safe_params)
+>>>>>>> Refs #3917 - Feed strong_params attributes with Apipie
       end
 
       api :DELETE, "/puppetclasses/:id/", N_("Delete a Puppet class")

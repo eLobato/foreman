@@ -32,7 +32,7 @@ module Api
       end
 
       def create
-        @puppetclass = Puppetclass.new(foreman_params)
+        @puppetclass = Puppetclass.new(safe_params)
         process_response @puppetclass.save
       end
 
@@ -43,7 +43,7 @@ module Api
       end
 
       def update
-        process_response @puppetclass.update_attributes(foreman_params)
+        process_response @puppetclass.update_attributes(safe_params)
       end
 
       api :DELETE, "/puppetclasses/:id/", "Delete a puppetclass."
