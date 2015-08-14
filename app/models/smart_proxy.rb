@@ -36,7 +36,7 @@ class SmartProxy < ActiveRecord::Base
     end
   }
 
-  scope :with_features, lambda {|*feature_names| where(:features => { :name => feature_names }).joins(:features) if feature_names.any? }
+  scope :with_features, ->(*feature_names) { where(:features => { :name => feature_names }).joins(:features) if feature_names.any? }
 
   def hostname
     # This will always match as it is validated
