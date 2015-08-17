@@ -7,19 +7,22 @@ class UserTest < ActiveSupport::TestCase
     @user = User.create :auth_source => auth_sources(:one), :login => "foo", :mail  => "foo@bar.com"
   end
 
-  test "should have login" do
-    refute_valid FactoryGirl.build(:user, :login => nil), :login
-  end
-
-  test "mail address is optional on creation" do
-    assert_valid FactoryGirl.build(:user, :mail => nil)
-  end
-
-  test "mail is optional if mail is currently nil" do
-    u = FactoryGirl.create(:user, :mail => nil)
-    u.firstname = 'Bob'
-    assert_valid u
-  end
+  # Presence
+  should validate_presence_of(:login)
+  should validate_presence_of(:mail).on(:update)
+  # Uniqueness
+  should validate_uniqueness_of(:login)
+  # Length
+  should validate_length_of(:login).is_at_most(100)
+  should validate_length_of(:firstname).is_at_most(50)
+  should validate_length_of(:lastname).is_at_most(50)
+  should validate_length_of(:mail).is_at_most(60)
+  # Format
+  should allow_value('').for(:mail).on(:create)
+  should allow_value('é ô à', "C_r'a-z.y( )<,Na=me;>").for(:firstname)
+  should allow_value('é ô à', "C_r'a-z.y( )<,Na=me;>").for(:lastname)
+  should_not allow_value('The Riddle?').for(:firstname)
+  should_not allow_value("it's the JOKER$$$").for(:lastname)
 
   test "mail is require when mail isn't currently nil" do
     u = FactoryGirl.create(:user, :mail => "foo@bar.com")
@@ -33,24 +36,10 @@ class UserTest < ActiveSupport::TestCase
     assert_valid u
   end
 
-  test "login should be unique" do
+  test 'login should also be unique across usergroups' do
+    Usergroup.create(:name => "foo")
     u = User.new :auth_source => auth_sources(:one), :login => "foo", :mail  => "foo@bar.com"
-    refute_valid u, :login
-  end
-
-  test "login should also be unique across usergroups" do
-    Usergroup.create :name => "foo"
-    u = User.new :auth_source => auth_sources(:one), :login => "foo", :mail  => "foo@bar.com"
-
     refute u.valid?
-  end
-
-  test "duplicate login should be detected case insensitively" do
-    u1 = User.new :auth_source => auth_sources(:one), :login => "UsEr", :mail  => "foo1@bar.com", :password => "foo"
-    u2 = User.new :auth_source => auth_sources(:one), :login => "user", :mail  => "foo2@bar.com", :password => "foo"
-    assert u1.save
-    refute u2.save
-    assert u2.errors.messages[:login].include? "already exists"
   end
 
   test "user should login case insensitively" do
@@ -67,51 +56,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "mail should have format" do
-    u = User.new :auth_source => auth_sources(:one), :login => "foo", :mail => "bar"
-    refute u.valid?
-  end
-
-  test "login size should not exceed the 100 characters" do
-    u = User.new :auth_source => auth_sources(:one), :login => "a" * 101, :mail => "foo@bar.com"
-    refute u.save
-  end
-
-  test "firstname should have the correct format" do
-    @user.firstname = "The Riddle?"
-    refute @user.save
-
-    @user.firstname = "C_r'a-z.y( )<,Na=me;>"
-    assert @user.save
-
-    @user.firstname = "é ô à"
-    assert @user.save
-  end
-
-  test "lastname should have the correct format" do
-    @user.lastname = "it's the JOKER$$$"
-    refute @user.save
-
-    @user.lastname = "C_r'a-z.y( )<,Na=me;>"
-    assert @user.save
-
-    @user.lastname = "é ô à"
-    assert @user.save
-  end
-
-  test "firstname should not exceed the 50 characters" do
-    @user.firstname = "a" * 51
-    refute @user.save
-  end
-
-  test "lastname should not exceed the 50 characters" do
-    @user.firstname = "a" * 51
-    refute @user.save
-  end
-
-  test "mail should not exceed the 60 characters" do
-    u = User.create :auth_source => auth_sources(:one), :login => "foo"
-    u.mail = "foo" * 20 + "@bar.com"
-    refute u.save
+    refute User.new(:auth_source => auth_sources(:one), :login => "foo", :mail => "bar").valid?
   end
 
   test "to_label method should return a firstname and the lastname" do
@@ -138,7 +83,7 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
-  context "try to login" do
+  describe "try to login" do
     test "when password is empty should return nil" do
       assert_nil User.try_to_login("anything", "")
     end
@@ -172,7 +117,7 @@ class UserTest < ActiveSupport::TestCase
       User.try_to_login("foo", "password")
     end
 
-    context "ldap attributes" do
+    describe "ldap attributes" do
       setup do
         AuthSourceLdap.any_instance.stubs(:update_usergroups).returns(true)
       end
@@ -537,8 +482,8 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
-  context "find_or_create_external_user" do
-    context "internal or not existing AuthSource" do
+  describe "find_or_create_external_user" do
+    describe "internal or not existing AuthSource" do
       test 'existing user' do
         assert_difference('User.count', 0) do
           assert User.find_or_create_external_user({:login => users(:one).login}, nil)
@@ -564,7 +509,7 @@ class UserTest < ActiveSupport::TestCase
       end
     end
 
-    context "existing AuthSource" do
+    describe "existing AuthSource" do
       setup do
         @apache_source = AuthSourceExternal.where(:name => 'apache_module').first_or_create
       end
@@ -591,7 +536,7 @@ class UserTest < ActiveSupport::TestCase
         assert_equal 'Bar',                created_user.lastname
       end
 
-      context 'with external user groups' do
+      describe 'with external user groups' do
         setup do
           @user      = FactoryGirl.create(:user,               :auth_source => @apache_source)
           @external  = FactoryGirl.create(:external_usergroup, :auth_source => @apache_source)
@@ -611,7 +556,7 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
-  context 'auto create users' do
+  describe 'auto create users' do
     setup do
       ldap_attrs = { :firstname => "Foo", :lastname => "Bar", :mail => "baz@qux.com",
                      :login => 'FoOBaR' }
@@ -643,7 +588,7 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
-  context "editing self?" do
+  describe "editing self?" do
     # A regular setup block would run before the global setup
     # leaving User.current = users :admin
     def editing_self_helper
