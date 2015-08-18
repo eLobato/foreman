@@ -15,11 +15,7 @@
           <%= "<td rowspan='#{keys.size}'>#{_('Global')}</td>".html_safe if name == keys.first %>
           <td><%= content_tag :span, name, :id => "name_#{name}"%>
           </td>
-          <td><%= parameter_value_field inherited_parameters[name] %></td>
-          <td>
-            <%= link_to_function(_("override"), "override_param(this)", :title => _("Override this value"),
-                                 :'data-tag' => 'override', :class => "btn btn-default") if authorized_via_my_scope("host_editing", "create_params") && !@host.host_parameters.map(&:name).include?(name) %>
-          </td>
+          <td><%= parameter_value_field(inherited_parameters[name], name) %></td>
         </tr>
       <% end %>
     </tbody>

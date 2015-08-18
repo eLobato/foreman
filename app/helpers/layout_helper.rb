@@ -209,8 +209,7 @@ module LayoutHelper
       content_tag(:div, :class => "clearfix") do
         content_tag :div, :class => "form-group #{error.empty? ? "" : 'has-error'}",
                     :id => options.delete(:control_group_id) do
-          fullscreen = options[:fullscreen] ? fullscreen_button("$(this).prev().find('textarea')") : ""
-          add_help_to_label(size_class, label, help_inline, fullscreen) do
+          add_help_to_label(size_class, label, help_inline) do
             yield.html_safe + help_block.html_safe
           end
         end.html_safe
@@ -218,11 +217,11 @@ module LayoutHelper
     end
   end
 
-  def add_help_to_label(size_class, label, help_inline, fullscreen)
+  def add_help_to_label(size_class, label, help_inline)
     label.html_safe +
         content_tag(:div, :class => size_class) do
           yield
-        end.html_safe + fullscreen + help_inline.html_safe
+        end.html_safe + help_inline.html_safe
   end
 
   # The target should have class="collapse [out|in]" out means collapsed on load and in means expanded.

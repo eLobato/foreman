@@ -12,31 +12,32 @@
           <%= f.text_field(:name,  :class => "form-control", :disabled => disabled, :placeholder => _("Name")) %>
         </td>
         <td class="col-md-4 value">
+          <div class="input-group">
           <% if f.object.hidden_value? %>
             <%= f.password_field(:value, :class => 'form-control',
                              :disabled => disabled,
                              :value => f.object.value) %>
           <% else %>
             <%= f.text_area(:value,
-                        :class => "form-control",
-                        :rows => line_count(f, :value),
-                        :disabled => disabled,
-                        :placeholder => _("Value")) %>
-
+                            :class => "form-control",
+                            :rows => line_count(f, :value),
+                            :disabled => disabled,
+                            :placeholder => _("Value")) %>
           <% end %>
-        </td>
-        <td class="col-md-1">
-          <%= fullscreen_button("$(this).parent().prev().find('textarea')") unless f.object.hidden_value? %>
-        </td>
-        <td>
-          <span class="help-block">
-            <%= f.check_box(:hidden_value,
+          <span class="input-group-addon">
+            <%= fullscreen_button("$(this).parent().prev().find('textarea')") unless f.object.hidden_value? %>
+            <% f.check_box(:hidden_value,
                       :class => 'hidden_value_textarea_switch',
                       :onclick => 'turn_textarea_switch()',
                       :disabled => disabled) %>
-            <%= _('hide') %><br />
-            <%= link_to_remove_fields('', f) if authorized_via_my_scope("host_editing", "destroy_params") %><%= _('remove') %>
+            <button class="btn btn-default btn-sm">
+              <%= icon_text('eye-close') %>
+            </button>
+            <button class="btn btn-default btn-sm">
+              <%= link_to_remove_fields('', f) if authorized_via_my_scope("host_editing", "destroy_params") %>
+            </button>
           </span>
+          </div>
         </td>
         <span class="help-block">
           <%= f.object.errors.full_messages.to_sentence %>
