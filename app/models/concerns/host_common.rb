@@ -211,6 +211,12 @@ module HostCommon
     environment.puppetclasses - parent_classes
   end
 
+  protected
+
+  def set_lookup_value_matcher
+    self.lookup_value_matcher = lookup_value_match
+  end
+
   private
 
   # fall back to our puppet proxy in case our puppet ca is not defined/used.
