@@ -7,7 +7,7 @@ class Bookmark < ActiveRecord::Base
   belongs_to :owner, :polymorphic => true
   audited :allow_mass_assignment => true
 
-  validates :name, :uniqueness => true, :unless => Proc.new{|b| Bookmark.my_bookmarks.where(:name => b.name).empty?}
+  validates :name, :uniqueness => {:scope => :controller}, :unless => Proc.new{|b| Bookmark.my_bookmarks.where(:name => b.name).empty?}
   validates :name, :query, :presence => true
   validates :controller, :presence => true, :no_whitespace => true,
                          :inclusion => {
