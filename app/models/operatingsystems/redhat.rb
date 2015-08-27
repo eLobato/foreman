@@ -33,6 +33,16 @@ class Redhat < Operatingsystem
     "Red Hat"
   end
 
+  def initrd(_)
+    return 'isolinux/initrd.img' if name.match(/.*atomic.*/i)
+    super
+  end
+
+  def atomic_repo
+    binding.pry
+    media.first.path
+  end
+
   def self.shorten_description(description)
     return "" if description.blank?
     s=description
