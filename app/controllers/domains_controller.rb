@@ -11,7 +11,7 @@ class DomainsController < ApplicationController
   end
 
   def create
-    @domain = Domain.new(params[:domain])
+    @domain = Domain.new(safe_params)
     if @domain.save
       process_success
     else
@@ -23,7 +23,7 @@ class DomainsController < ApplicationController
   end
 
   def update
-    if @domain.update_attributes(params[:domain])
+    if @domain.update_attributes(safe_params)
       process_success
     else
       process_error

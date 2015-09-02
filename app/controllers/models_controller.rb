@@ -3,7 +3,7 @@ class ModelsController < ApplicationController
   before_filter :find_resource, :only => [:edit, :update, :destroy]
 
   def index
-    @models       = resource_base.search_for(params[:search], :order => params[:order]).paginate(:page => params[:page])
+    @models = resource_base.search_for(params[:search], :order => params[:order]).paginate(:page => params[:page])
   end
 
   def new
@@ -11,7 +11,7 @@ class ModelsController < ApplicationController
   end
 
   def create
-    @model = Model.new(params[:model])
+    @model = Model.new(safe_params)
     if @model.save
       process_success
     else
@@ -23,7 +23,7 @@ class ModelsController < ApplicationController
   end
 
   def update
-    if @model.update_attributes(params[:model])
+    if @model.update_attributes(safe_params)
       process_success
     else
       process_error

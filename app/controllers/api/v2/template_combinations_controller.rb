@@ -37,7 +37,7 @@ module Api
       param_group :template_combination, :as => :create
 
       def create
-        @template_combination = nested_obj.template_combinations.build(foreman_params)
+        @template_combination = nested_obj.template_combinations.build(safe_params)
         process_response @template_combination.save
       end
 
@@ -60,7 +60,7 @@ module Api
       param_group :template_combination
 
       def update
-        process_response @template_combination.update_attributes!(foreman_params)
+        process_response @template_combination.update_attributes!(safe_params)
       end
 
       api :DELETE, "/template_combinations/:id", N_("Delete a template combination")

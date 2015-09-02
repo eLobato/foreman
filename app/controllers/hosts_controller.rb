@@ -78,8 +78,8 @@ class HostsController < ApplicationController
   end
 
   def create
-    @host = Host.new(params[:host])
-    @host.managed = true if (params[:host] && params[:host][:managed].nil?)
+    @host = Host.new(safe_params)
+    @host.managed = true if (safe_params && safe_params[:managed].nil?)
     forward_url_options
     if @host.save
       process_success :success_redirect => host_path(@host)
@@ -97,7 +97,7 @@ class HostsController < ApplicationController
   def update
     forward_url_options
     Taxonomy.no_taxonomy_scope do
-      attributes = @host.apply_inherited_attributes(params[:host])
+      attributes = @host.apply_inherited_attributes(safe_params)
 
       if @host.update_attributes(attributes)
         process_success :success_redirect => host_path(@host)
@@ -130,7 +130,7 @@ class HostsController < ApplicationController
   end
 
   def interfaces
-    @host = Host.new params[:host]
+    @host = Host.new(safe_params)
 
     merge = InterfaceMerge.new
     merge.run(@host.interfaces, @host.compute_resource.try(:compute_profile_for, @host.compute_profile_id))
@@ -535,7 +535,7 @@ class HostsController < ApplicationController
 
   def process_taxonomy
     return head(:not_found) unless @location || @organization
-    @host = Host.new(foreman_params.except(:interfaces_attributes))
+    @host = Host.new(safe_params.except(:interfaces_attributes))
     # revert compute resource to "Bare Metal" (nil) if selected
     # compute resource is not included taxonomy
     Taxonomy.as_taxonomy @organization, @location do
@@ -546,7 +546,7 @@ class HostsController < ApplicationController
   end
 
   def template_used
-    host      = Host.new(foreman_params.except(:host_parameters_attributes, :interfaces_attributes))
+    host      = Host.new(safe_params.except(:host_parameters_attributes, :interfaces_attributes))
     templates = host.available_template_kinds(params[:provisioning])
     return not_found if templates.empty?
     render :partial => 'provisioning', :locals => { :templates => templates }
@@ -656,7 +656,7 @@ class HostsController < ApplicationController
     @operatingsystem = @host.operatingsystem
     @medium          = @host.medium
     if @host.compute_resource_id && params[:host] && params[:host][:compute_attributes]
-      @host.compute_attributes = foreman_params[:compute_attributes]
+      @host.compute_attributes = safe_params[:compute_attributes]
     end
   end
 

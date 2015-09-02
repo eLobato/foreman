@@ -50,7 +50,7 @@ class RolesController < ApplicationController
   end
 
   def update
-    if @role.update_attributes(params[:role])
+    if @role.update_attributes(safe_params)
       process_success
     else
       process_error
@@ -80,10 +80,10 @@ class RolesController < ApplicationController
     if params[:original_role_id].present?
       new_role = Role.find(params[:original_role_id]).
                    deep_clone(:include => [:filters => :filterings])
-      new_role.name    = params[:role][:name]
+      new_role.name    = safe_params[:name]
       new_role.builtin = false
     else
-      new_role = Role.new(params[:role])
+      new_role = Role.new(safe_params)
     end
 
     new_role

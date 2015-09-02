@@ -57,8 +57,8 @@ class PuppetclassesController < ApplicationController
   def get_host_or_hostgroup
     # params['host_id'] = 'null' if NEW since hosts/form and hostgroups/form has data-id="null"
     if params['host_id'] == 'null'
-      @obj = Host::Managed.new(params.require(:host).permit(permitted_host_attributes)) if params['host']
-      @obj ||= Hostgroup.new(params.require(:hostgroup).permit(permitted_hostgroup_attributes)) if params['hostgroup']
+      @obj = Host::Managed.new(params['host']) if params['host']
+      @obj ||= Hostgroup.new(params['hostgroup']) if params['hostgroup']
     else
       if params['host']
         @obj = Host::Base.friendly.find(params['host_id'])
@@ -67,11 +67,11 @@ class PuppetclassesController < ApplicationController
           @obj.type = "Host::Managed"
         end
         # puppetclass_ids and config_group_ids need to be removed so they don't cause automatic inserts
-        @obj.attributes = params.require(:host).permit(permitted_host_attributes).except!(:puppetclass_ids, :config_group_ids)
+        @obj.attributes = params['host'].except!(:puppetclass_ids, :config_group_ids)
       elsif params['hostgroup']
         # hostgroup.id is assigned to params['host_id'] by host_edit.js#load_puppet_class_parameters
         @obj = Hostgroup.find(params['host_id'])
-        @obj.attributes = params.require(:hostgroup).permit(permitted_hostgroup_attributes).except!(:puppetclass_ids, :config_group_ids)
+        @obj.attributes = params['hostgroup'].except!(:puppetclass_ids, :config_group_ids)
       end
     end
     @obj

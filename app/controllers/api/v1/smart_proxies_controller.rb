@@ -27,7 +27,7 @@ module Api
       end
 
       def create
-        @smart_proxy = SmartProxy.new(foreman_params)
+        @smart_proxy = SmartProxy.new(safe_params)
         process_response @smart_proxy.save
       end
 
@@ -39,7 +39,7 @@ module Api
       end
 
       def update
-        process_response @smart_proxy.update_attributes(foreman_params)
+        process_response @smart_proxy.update_attributes(safe_params)
       end
 
       api :DELETE, "/smart_proxies/:id/", "Delete a smart_proxy."

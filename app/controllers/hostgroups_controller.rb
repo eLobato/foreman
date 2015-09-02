@@ -38,7 +38,7 @@ class HostgroupsController < ApplicationController
   end
 
   def create
-    @hostgroup = Hostgroup.new(params[:hostgroup])
+    @hostgroup = Hostgroup.new(safe_params)
     if @hostgroup.save
       process_success
     else
@@ -52,12 +52,12 @@ class HostgroupsController < ApplicationController
   end
 
   def update
-    if params[:hostgroup][:group_parameters_attributes].present?
-      params[:hostgroup][:group_parameters_attributes].merge(parse_parent_params(params.select { |k| k.match(/parent.*/) } ))
+    if safe_params[:group_parameters_attributes].present?
+      safe_params[:group_parameters_attributes].merge(parse_parent_params(params.select { |k| k.match(/parent.*/) } ))
     end
     # remove from hash :root_pass if blank?
-    params[:hostgroup].except!(:root_pass) if params[:hostgroup][:root_pass].blank?
-    if @hostgroup.update_attributes(params[:hostgroup])
+    safe_params.except!(:root_pass) if safe_params[:root_pass].blank?
+    if @hostgroup.update_attributes(safe_params)
       process_success
     else
       taxonomy_scope
@@ -153,17 +153,17 @@ class HostgroupsController < ApplicationController
   end
 
   def define_parent
-    if params[:hostgroup][:parent_id].present?
-      @parent = Hostgroup.authorized(:view_hostgroups).find(params[:hostgroup][:parent_id])
+    if safe_params[:parent_id].present?
+      @parent = Hostgroup.authorized(:view_hostgroups).find(safe_params[:parent_id])
     end
   end
 
   def define_hostgroup
-    if params[:hostgroup][:id].present?
-      @hostgroup = Hostgroup.authorized(:view_hostgroups).find(params[:hostgroup][:id])
-      @hostgroup.attributes = params[:hostgroup]
+    if safe_params[:id].present?
+      @hostgroup = Hostgroup.authorized(:view_hostgroups).find(safe_params[:id])
+      @hostgroup.attributes = safe_params
     else
-      @hostgroup = Hostgroup.new(params[:hostgroup])
+      @hostgroup = Hostgroup.new(safe_params)
     end
   end
 

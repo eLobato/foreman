@@ -29,7 +29,7 @@ module Api
       param_group :bookmark, :as => :create
 
       def create
-        @bookmark = Bookmark.new(foreman_params)
+        @bookmark = Bookmark.new(safe_params)
         process_response @bookmark.save
       end
 
@@ -38,7 +38,7 @@ module Api
       param_group :bookmark
 
       def update
-        process_response @bookmark.update_attributes(foreman_params)
+        process_response @bookmark.update_attributes(safe_params)
       end
 
       api :DELETE, "/bookmarks/:id/", N_("Delete a bookmark")

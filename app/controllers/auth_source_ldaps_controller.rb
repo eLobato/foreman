@@ -10,7 +10,7 @@ class AuthSourceLdapsController < ApplicationController
   end
 
   def create
-    @auth_source_ldap = AuthSourceLdap.new(params[:auth_source_ldap])
+    @auth_source_ldap = AuthSourceLdap.new(safe_params)
     if @auth_source_ldap.save
       process_success
     else
@@ -23,8 +23,8 @@ class AuthSourceLdapsController < ApplicationController
 
   def update
     # remove from hash :account_password if blank?
-    params[:auth_source_ldap].except!(:account_password) if params[:auth_source_ldap][:account_password].blank?
-    if @auth_source_ldap.update_attributes(params[:auth_source_ldap])
+    safe_params.except!(:account_password) if safe_params[:account_password].blank?
+    if @auth_source_ldap.update_attributes(safe_params)
       process_success
     else
       process_error

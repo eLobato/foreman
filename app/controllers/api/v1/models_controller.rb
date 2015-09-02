@@ -31,7 +31,7 @@ module Api
       end
 
       def create
-        @model = Model.new(foreman_params)
+        @model = Model.new(safe_params)
         process_response @model.save
       end
 
@@ -45,7 +45,7 @@ module Api
       end
 
       def update
-        process_response @model.update_attributes(foreman_params)
+        process_response @model.update_attributes(safe_params)
       end
 
       api :DELETE, "/models/:id/", "Delete a model."

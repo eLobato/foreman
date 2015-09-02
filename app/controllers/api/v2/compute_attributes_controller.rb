@@ -21,7 +21,7 @@ module Api
       def create
         params[:compute_attribute].merge!(:compute_profile_id => params[:compute_profile_id],
                                           :compute_resource_id => params[:compute_resource_id])
-        @compute_attribute = ComputeAttribute.create!(foreman_params)
+        @compute_attribute = ComputeAttribute.create!(safe_params)
         process_response @compute_attribute
       end
 
@@ -39,7 +39,7 @@ module Api
       def update
         params[:compute_attribute].merge!(:compute_profile_id => params[:compute_profile_id],
                                           :compute_resource_id => params[:compute_resource_id])
-        process_response @compute_attribute.update_attributes(foreman_params)
+        process_response @compute_attribute.update_attributes(safe_params)
       end
     end
   end

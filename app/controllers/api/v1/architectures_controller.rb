@@ -29,7 +29,7 @@ module Api
       end
 
       def create
-        @architecture = Architecture.new(foreman_params)
+        @architecture = Architecture.new(safe_params)
         process_response @architecture.save
       end
 
@@ -41,7 +41,7 @@ module Api
       end
 
       def update
-        process_response @architecture.update_attributes(foreman_params)
+        process_response @architecture.update_attributes(safe_params)
       end
 
       api :DELETE, "/architectures/:id/", "Delete an architecture."

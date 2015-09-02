@@ -79,9 +79,9 @@ module Api
       param_group :host, :as => :create
 
       def create
-        host_params = host_attributes(foreman_params)
+        host_params = host_attributes(safe_params)
         @host = Host.new(host_params)
-        @host.managed = true if (foreman_params[:managed].nil?)
+        @host.managed = true if (safe_params[:managed].nil?)
         merge_interfaces(@host)
 
         forward_request_url
@@ -95,7 +95,7 @@ module Api
       param_group :host
 
       def update
-        @host.attributes = host_attributes(foreman_params, @host)
+        @host.attributes = host_attributes(safe_params, @host)
         merge_interfaces(@host)
 
         process_response @host.save
@@ -217,8 +217,8 @@ Return the host's compute attributes that can be used to create a clone of this 
         parameters = parameters.deep_clone
         if parameters[:interfaces_attributes]
           # handle both hash and array styles of nested attributes
-          if params[:host][:interfaces_attributes].is_a? Hash
-            parameters[:interfaces_attributes] = params[:host][:interfaces_attributes].values
+          if safe_params[:interfaces_attributes].is_a? Hash
+            parameters[:interfaces_attributes] = safe_params[:interfaces_attributes].values
           end
           # map interface types
           parameters[:interfaces_attributes] = parameters[:interfaces_attributes].map do |nic_attr|

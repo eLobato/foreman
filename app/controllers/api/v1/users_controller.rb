@@ -63,7 +63,7 @@ module Api
       end
 
       def update
-        if @user.update_attributes(foreman_params)
+        if @user.update_attributes(safe_params)
           update_sub_hostgroups_owners
 
           process_success

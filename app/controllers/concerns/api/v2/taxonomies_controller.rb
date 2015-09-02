@@ -56,7 +56,7 @@ module Api::V2::TaxonomiesController
   api :POST, '/:resource_id', N_('Create :a_resource')
   param_group :resource, :as => :create
   def create
-    @taxonomy = taxonomy_class.new(foreman_params)
+    @taxonomy = taxonomy_class.new(safe_params)
     instance_variable_set("@#{taxonomy_single}", @taxonomy)
     process_response @taxonomy.save
   end
@@ -67,7 +67,7 @@ module Api::V2::TaxonomiesController
     # NOTE - if not ! and invalid, the error is undefined method `permission_failed?' for #<Location:0x7fe38c1d3ec8> (NoMethodError)
     # removed process_response & added explicit render 'api/v2/taxonomies/update'.  Otherwise, *_ids are not returned
 
-    process_response  @taxonomy.update_attributes(foreman_params)
+    process_response  @taxonomy.update_attributes(safe_params)
   end
 
   api :DELETE, '/:resource_id/:id', N_('Delete :a_resource')

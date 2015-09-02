@@ -41,7 +41,7 @@ module Api
       end
 
       def create
-        @subnet = Subnet.new(foreman_params)
+        @subnet = Subnet.new(safe_params)
         process_response @subnet.save
       end
 
@@ -64,7 +64,7 @@ module Api
       end
 
       def update
-        process_response @subnet.update_attributes(foreman_params)
+        process_response @subnet.update_attributes(safe_params)
       end
 
       api :DELETE, '/subnets/:id', 'Delete a subnet'

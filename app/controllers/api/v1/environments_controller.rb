@@ -28,7 +28,7 @@ module Api
       end
 
       def create
-        @environment = Environment.new(foreman_params)
+        @environment = Environment.new(safe_params)
         process_response @environment.save
       end
 
@@ -39,7 +39,7 @@ module Api
       end
 
       def update
-        process_response @environment.update_attributes(foreman_params)
+        process_response @environment.update_attributes(safe_params)
       end
 
       api :DELETE, "/environments/:id/", "Delete an environment."

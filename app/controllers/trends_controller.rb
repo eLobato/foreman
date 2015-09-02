@@ -14,8 +14,8 @@ class TrendsController < ApplicationController
   end
 
   def create
-    params[:trend] ||= { }
-    @trend         = params[:trend][:trendable_type] == 'FactName' ? FactTrend.new(params[:trend]) : ForemanTrend.new(params[:trend])
+    safe_params ||= { }
+    @trend = safe_params[:trendable_type] == 'FactName' ? FactTrend.new(safe_params) : ForemanTrend.new(safe_params)
     if @trend.save
       process_success
     else
@@ -24,7 +24,7 @@ class TrendsController < ApplicationController
   end
 
   def update
-    @trends = Trend.update(params[:trend].keys, params[:trend].values).reject { |p| p.errors.empty? }
+    @trends = Trend.update(safe_params.keys, safe_params.values).reject { |p| p.errors.empty? }
     if @trends.empty?
       process_success
     else

@@ -33,7 +33,7 @@ module Api
       end
 
       def create
-        @lookup_key = LookupKey.new(foreman_params)
+        @lookup_key = LookupKey.new(safe_params)
         process_response @lookup_key.save
       end
 
@@ -49,7 +49,7 @@ module Api
       end
 
       def update
-        process_response @lookup_key.update_attributes(foreman_params)
+        process_response @lookup_key.update_attributes(safe_params)
       end
 
       api :DELETE, "/lookup_keys/:id/", "Delete a lookup key."

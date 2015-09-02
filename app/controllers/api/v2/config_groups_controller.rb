@@ -26,7 +26,7 @@ module Api
       param_group :config_group, :as => :create
 
       def create
-        @config_group = ConfigGroup.new(foreman_params)
+        @config_group = ConfigGroup.new(safe_params)
         process_response @config_group.save
       end
 
@@ -35,7 +35,7 @@ module Api
       param_group :config_group
 
       def update
-        process_response @config_group.update_attributes(foreman_params)
+        process_response @config_group.update_attributes(safe_params)
       end
 
       api :DELETE, "/config_groups/:id/", N_("Delete a config group")

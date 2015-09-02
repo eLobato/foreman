@@ -43,7 +43,7 @@ module Api
       param_group :image, :as => :create
 
       def create
-        @image = nested_obj.images.new(foreman_params)
+        @image = nested_obj.images.new(safe_params)
         process_response @image.save, nested_obj
       end
 
@@ -53,7 +53,7 @@ module Api
       param_group :image
 
       def update
-        process_response @image.update_attributes(foreman_params)
+        process_response @image.update_attributes(safe_params)
       end
 
       api :DELETE, "/compute_resources/:compute_resource_id/images/:id/", N_("Delete an image")

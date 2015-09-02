@@ -22,15 +22,15 @@ class ComputeResourcesController < ApplicationController
   end
 
   def create
-    if params[:compute_resource].present? && params[:compute_resource][:provider].present?
-      @compute_resource = ComputeResource.new_provider params[:compute_resource]
+    if safe_params.present? && safe_params[:provider].present?
+      @compute_resource = ComputeResource.new_provider safe_params
       if @compute_resource.save
         process_success :success_redirect => @compute_resource
       else
         process_error
       end
     else
-      @compute_resource = ComputeResource.new params[:compute_resource]
+      @compute_resource = ComputeResource.new safe_params
       @compute_resource.valid?
       process_error
     end
@@ -56,8 +56,8 @@ class ComputeResourcesController < ApplicationController
   end
 
   def update
-    params[:compute_resource].except!(:password) if params[:compute_resource][:password].blank?
-    if @compute_resource.update_attributes(params[:compute_resource])
+    safe_params.except!(:password) if safe_params[:password].blank?
+    if @compute_resource.update_attributes(safe_params)
       process_success :success_redirect => compute_resources_path
     else
       process_error
@@ -89,10 +89,10 @@ class ComputeResourcesController < ApplicationController
     Rails.logger.info "CR_ID IS #{params[:cr_id]}"
     if params[:cr_id].present? && params[:cr_id] != 'null'
       @compute_resource = ComputeResource.authorized(:edit_compute_resources).find(params[:cr_id])
-      params[:compute_resource].delete(:password) if params[:compute_resource][:password].blank?
-      @compute_resource.attributes = params[:compute_resource]
+      safe_params.delete(:password) if safe_params[:password].blank?
+      @compute_resource.attributes = safe_params
     else
-      @compute_resource = ComputeResource.new_provider(params[:compute_resource])
+      @compute_resource = ComputeResource.new_provider(safe_params)
     end
     @compute_resource.test_connection :force => true
     render :partial => "compute_resources/form", :locals => { :compute_resource => @compute_resource }

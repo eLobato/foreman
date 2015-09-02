@@ -43,7 +43,7 @@ module Api
       param_group :override_value, :as => :create
 
       def create
-        @override_value = @smart.lookup_values.create!(foreman_params)
+        @override_value = @smart.lookup_values.create!(safe_params)
         @smart.update_attribute(:override, true)
         process_response @override_value
       end
@@ -55,7 +55,7 @@ module Api
       param_group :override_value
 
       def update
-        @override_value.update_attributes!(foreman_params)
+        @override_value.update_attributes!(safe_params)
         render 'api/v2/override_values/show'
       end
 
