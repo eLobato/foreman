@@ -14,7 +14,7 @@ class SettingsController < ApplicationController
 
   def update
     @setting = Setting.friendly.find(params[:id])
-    if @setting.parse_string_value(foreman_params[:value]) && @setting.save
+    if @setting.parse_string_value(params[:value]) && @setting.save
       render :json => @setting
     else
       error_msg = @setting.errors.full_messages
