@@ -2,7 +2,6 @@ class Puppetclass < ActiveRecord::Base
   include Authorizable
   include ScopedSearchExtensions
   include Parameterizable::ByIdName
-  include ActiveModel::ForbiddenAttributesProtection
 
   validates_lengths_from_database
   before_destroy EnsureNotUsedBy.new(:hosts, :hostgroups)
