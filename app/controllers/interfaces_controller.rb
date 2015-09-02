@@ -2,7 +2,7 @@ class InterfacesController < ApplicationController
   # params structure is
   #   {"host"=>
   #     {"interfaces_attributes"=>
-  #       {"1405068143746"=>
+  #       {"new_1405068143746"=>
   #         {"_destroy"=>"false", "type"=>"Nic::BMC", "mac"=>"", "name"=>"", "domain_id"=>"", "ip"=>""}}}}
   def new
     @host = Host.new params[:host]

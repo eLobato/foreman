@@ -11,7 +11,7 @@ class OperatingsystemsController < ApplicationController
   end
 
   def create
-    @operatingsystem = Operatingsystem.new(foreman_params)
+    @operatingsystem = Operatingsystem.new(params[:operatingsystem])
     if @operatingsystem.save
       process_success
     else
@@ -29,7 +29,7 @@ class OperatingsystemsController < ApplicationController
   end
 
   def update
-    if @operatingsystem.update_attributes(foreman_params)
+    if @operatingsystem.update_attributes(params[:operatingsystem])
       process_success
     else
       process_error

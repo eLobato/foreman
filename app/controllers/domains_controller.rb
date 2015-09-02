@@ -11,7 +11,7 @@ class DomainsController < ApplicationController
   end
 
   def create
-    @domain = Domain.new(foreman_params)
+    @domain = Domain.new(params[:domain])
     if @domain.save
       process_success
     else
@@ -23,7 +23,7 @@ class DomainsController < ApplicationController
   end
 
   def update
-    if @domain.update_attributes(foreman_params)
+    if @domain.update_attributes(params[:domain])
       process_success
     else
       process_error

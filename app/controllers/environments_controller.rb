@@ -13,7 +13,7 @@ class EnvironmentsController < ApplicationController
   end
 
   def create
-    @environment = Environment.new(foreman_params)
+    @environment = Environment.new(params[:environment])
     if @environment.save
       process_success
     else
@@ -25,7 +25,7 @@ class EnvironmentsController < ApplicationController
   end
 
   def update
-    if @environment.update_attributes(foreman_params)
+    if @environment.update_attributes(params[:environment])
       process_success
     else
       process_error

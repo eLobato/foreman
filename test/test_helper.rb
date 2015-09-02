@@ -339,7 +339,7 @@ Spork.each_run do
   class ActionController::TestCase
     self.use_transactional_fixtures = true
     setup :setup_set_script_name, :set_api_user, :reset_setting_cache, :turn_of_login
-    teardown :reset_setting_cache, :remove_raise_strong_parameters
+    teardown :reset_setting_cache
 
     def turn_of_login
       SETTINGS[:require_ssl] = false
@@ -363,11 +363,6 @@ Spork.each_run do
       @request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials(login, password)
       @request.env['CONTENT_TYPE'] = 'application/json'
       @request.env['HTTP_ACCEPT'] = 'application/json'
-    end
-
-    def remove_raise_strong_parameters
-      # Removes :raise from strong parameters tests.
-      ActionController::Parameters.action_on_unpermitted_parameters = :log
     end
   end
 

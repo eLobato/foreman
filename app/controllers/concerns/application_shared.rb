@@ -5,7 +5,6 @@ module ApplicationShared
   include Foreman::Controller::Session
   include Foreman::ThreadSession::Cleaner
   include FindCommon
-  include StrongParametersHelper
 
   def set_timezone
     default_timezone = Time.zone

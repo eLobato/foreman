@@ -36,8 +36,9 @@ class UsersController < ApplicationController
     editing_self?
     @user = find_resource(:edit_users)
     update_admin_flag
-    if @user.update_attributes(user_params)
+    if @user.update_attributes(params[:user])
       update_sub_hostgroups_owners
+
       process_success((editing_self? && !current_user.allowed_to?({:controller => 'users', :action => 'index'})) ? { :success_redirect => hosts_path } : {})
     else
       process_error

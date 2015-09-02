@@ -11,7 +11,7 @@ class RealmsController < ApplicationController
   end
 
   def create
-    @realm = Realm.new(foreman_params)
+    @realm = Realm.new(params[:realm])
     if @realm.save
       process_success
     else
@@ -23,7 +23,7 @@ class RealmsController < ApplicationController
   end
 
   def update
-    if @realm.update_attributes(foreman_params)
+    if @realm.update_attributes(params[:realm])
       process_success
     else
       process_error

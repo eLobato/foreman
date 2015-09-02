@@ -12,7 +12,7 @@ class ArchitecturesController < ApplicationController
   end
 
   def create
-    @architecture = Architecture.new(foreman_params)
+    @architecture = Architecture.new(params[:architecture])
     if @architecture.save
       process_success
     else
@@ -24,7 +24,7 @@ class ArchitecturesController < ApplicationController
   end
 
   def update
-    if @architecture.update_attributes(foreman_params)
+    if @architecture.update_attributes(params[:architecture])
       process_success
     else
       process_error

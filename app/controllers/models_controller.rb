@@ -11,7 +11,7 @@ class ModelsController < ApplicationController
   end
 
   def create
-    @model = Model.new(foreman_params)
+    @model = Model.new(params[:model])
     if @model.save
       process_success
     else
@@ -23,7 +23,7 @@ class ModelsController < ApplicationController
   end
 
   def update
-    if @model.update_attributes(foreman_params)
+    if @model.update_attributes(params[:model])
       process_success
     else
       process_error

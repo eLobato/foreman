@@ -14,7 +14,7 @@ class LookupKeysController < ApplicationController
   end
 
   def update
-    if @lookup_key.update_attributes(foreman_params)
+    if @lookup_key.update_attributes(params[:lookup_key])
       process_success
     else
       process_error
