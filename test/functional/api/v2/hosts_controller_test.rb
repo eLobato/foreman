@@ -1,11 +1,8 @@
 require 'test_helper'
+require_relative '../shared/hosts_controller_test'
 
 class Api::V2::HostsControllerTest < ActionController::TestCase
-  def setup
-    @host = FactoryGirl.create(:host)
-    @ptable = FactoryGirl.create(:ptable)
-    @ptable.operatingsystems =  [ Operatingsystem.find_by_name('Redhat') ]
-  end
+  included ::HostsControllerTest
 
   def basic_attrs
     { :name                => 'testhost11',
@@ -59,21 +56,6 @@ class Api::V2::HostsControllerTest < ActionController::TestCase
 
   def last_host
     Host.order('id asc').last
-  end
-
-  test "should get index" do
-    get :index, { }
-    assert_response :success
-    assert_not_nil assigns(:hosts)
-    hosts = ActiveSupport::JSON.decode(@response.body)
-    assert !hosts.empty?
-  end
-
-  test "should show individual record" do
-    get :show, { :id => @host.to_param }
-    assert_response :success
-    show_response = ActiveSupport::JSON.decode(@response.body)
-    assert !show_response.empty?
   end
 
   test "should create host" do
@@ -134,13 +116,6 @@ class Api::V2::HostsControllerTest < ActionController::TestCase
     assert_equal expected_compute_attributes(compute_attrs, 1), last_host.interfaces.find_by_mac('00:11:22:33:44:01').compute_attributes
   end
 
-  test "should create host with managed is false if parameter is passed" do
-    disable_orchestration
-    post :create, { :host => valid_attrs.merge!(:managed => false) }
-    assert_response :created
-    assert_equal false, last_host.managed?
-  end
-
   test "should update host" do
     put :update, { :id => @host.to_param, :host => valid_attrs }
     assert_response :success
@@ -168,17 +143,6 @@ class Api::V2::HostsControllerTest < ActionController::TestCase
     assert_response :success
   end
 
-  test "should destroy hosts" do
-    assert_difference('Host.count', -1) do
-      delete :destroy, { :id => @host.to_param }
-    end
-    assert_response :success
-  end
-
-  test "should show status hosts" do
-    get :status, { :id => @host.to_param }
-    assert_response :success
-  end
 
   test "should show specific status hosts" do
     get :get_status, { :id => @host.to_param, :type => 'global' }
@@ -193,42 +157,6 @@ class Api::V2::HostsControllerTest < ActionController::TestCase
     assert_response :success
   end
 
-  test "should allow access to restricted user who owns the host" do
-    host = FactoryGirl.create(:host, :owner => users(:restricted))
-    setup_user 'view', 'hosts', "owner_type = User and owner_id = #{users(:restricted).id}", :restricted
-    get :show, { :id => host.to_param }
-    assert_response :success
-  end
-
-  test "should allow to update for restricted user who owns the host" do
-    disable_orchestration
-    host = FactoryGirl.create(:host, :owner => users(:restricted))
-    setup_user 'edit', 'hosts', "owner_type = User and owner_id = #{users(:restricted).id}", :restricted
-    put :update, { :id => host.to_param, :host => valid_attrs }
-    assert_response :success
-  end
-
-  test "should allow destroy for restricted user who owns the hosts" do
-    host = FactoryGirl.create(:host, :owner => users(:restricted))
-    assert_difference('Host.count', -1) do
-      setup_user 'destroy', 'hosts', "owner_type = User and owner_id = #{users(:restricted).id}", :restricted
-      delete :destroy, { :id => host.to_param }
-    end
-    assert_response :success
-  end
-
-  test "should allow show status for restricted user who owns the hosts" do
-    host = FactoryGirl.create(:host, :owner => users(:restricted))
-    setup_user 'view', 'hosts', "owner_type = User and owner_id = #{users(:restricted).id}", :restricted
-    get :status, { :id => host.to_param }
-    assert_response :success
-  end
-
-  test "should not allow access to a host out of users hosts scope" do
-    setup_user 'view', 'hosts', "owner_type = User and owner_id = #{users(:restricted).id}", :restricted
-    get :show, { :id => @host.to_param }
-    assert_response :not_found
-  end
 
   test "should not list a host out of users hosts scope" do
     host = FactoryGirl.create(:host, :owner => users(:restricted))
@@ -241,24 +169,6 @@ class Api::V2::HostsControllerTest < ActionController::TestCase
     assert_includes ids, host.id
   end
 
-  test "should not update host out of users hosts scope" do
-    setup_user 'edit', 'hosts', "owner_type = User and owner_id = #{users(:restricted).id}", :restricted
-    put :update, { :id => @host.to_param }
-    assert_response :not_found
-  end
-
-  test "should not delete hosts out of users hosts scope" do
-    setup_user 'destroy', 'hosts', "owner_type = User and owner_id = #{users(:restricted).id}", :restricted
-    delete :destroy, { :id => @host.to_param }
-    assert_response :not_found
-  end
-
-  test "should not show status of hosts out of users hosts scope" do
-    setup_user 'view', 'hosts', "owner_type = User and owner_id = #{users(:restricted).id}", :restricted
-    get :status, { :id => @host.to_param }
-    assert_response :not_found
-  end
-
   test "should show hosts vm attributes" do
     host = FactoryGirl.create(:host, :compute_resource => compute_resources(:one))
     ComputeResource.any_instance.stubs(:vm_compute_attributes_for).returns( :cpus => 4 )
@@ -267,23 +177,6 @@ class Api::V2::HostsControllerTest < ActionController::TestCase
     data = JSON.parse(@response.body)
     assert_equal data, "cpus" => 4, "memory" => nil
     ComputeResource.any_instance.unstub(:vm_compute_attributes_for)
-  end
-
-  def set_remote_user_to(user)
-    @request.env['REMOTE_USER'] = user.login
-  end
-
-  test "when REMOTE_USER is provided and both authorize_login_delegation{,_api}
-        are set, authentication should succeed w/o valid session cookies" do
-    Setting[:authorize_login_delegation] = true
-    Setting[:authorize_login_delegation_api] = true
-    set_remote_user_to users(:admin)
-    User.current = nil # User.current is admin at this point (from initialize_host)
-    host = Host.first
-    get :show, {:id => host.to_param, :format => 'json'}
-    assert_response :success
-    get :show, {:id => host.to_param}
-    assert_response :success
   end
 
   test "should disassociate host" do

@@ -1,54 +1,9 @@
 require 'test_helper'
+require_relative '../shared/domains_controller_test'
 
 class Api::V2::DomainsControllerTest < ActionController::TestCase
-  test "should get index" do
-    get :index, { }
-    assert_response :success
-    assert_not_nil assigns(:domains)
-  end
+  include ::DomainsControllerTest
 
-  test "should show domain" do
-    get :show, { :id => Domain.first.to_param }
-    assert_response :success
-    show_response = ActiveSupport::JSON.decode(@response.body)
-    assert !show_response.empty?
-  end
-
-  test "should create valid domain" do
-    post :create, { :domain => { :name => "domain.net" } }
-    assert_response :created
-    show_response = ActiveSupport::JSON.decode(@response.body)
-    assert !show_response.empty?
-  end
-
-  test "should not create invalid domain" do
-    post :create, { :domain => { :fullname => "" } }
-    assert_response :unprocessable_entity
-  end
-
-  test "should update valid domain" do
-    put :update, { :id => Domain.first.to_param, :domain => { :name => "domain.new" } }
-    assert_equal "domain.new", Domain.first.name
-    assert_response :success
-  end
-
-  test "should not update invalid domain" do
-    put :update, { :id => Domain.first.to_param, :domain => { :name => "" } }
-    assert_response :unprocessable_entity
-  end
-
-  test "should destroy domain" do
-    domain = Domain.first
-    domain.hosts.clear
-    domain.hostgroups.clear
-    domain.subnets.clear
-    delete :destroy, { :id => domain.to_param }
-    domain = ActiveSupport::JSON.decode(@response.body)
-    assert_response :ok
-    refute Domain.find_by_id(domain['id'])
-  end
-
-  #test that taxonomy scope works for api for domains
   def setup
     taxonomies(:location1).domain_ids = [domains(:mydomain).id, domains(:yourdomain).id]
     taxonomies(:organization1).domain_ids = [domains(:mydomain).id]

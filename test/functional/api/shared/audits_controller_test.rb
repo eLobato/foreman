@@ -1,0 +1,19 @@
+module AuditsControllerTest
+  extend ActiveSupport::Concern
+  included do
+    test "should get index" do
+      get :index, { }
+      assert_response :success
+      assert_not_nil assigns(:audits)
+      audits = ActiveSupport::JSON.decode(@response.body)
+      assert !audits.empty?
+    end
+
+    test "should show individual record" do
+      get :show, { :id => audits(:one).to_param }
+      assert_response :success
+      show_response = ActiveSupport::JSON.decode(@response.body)
+      assert !show_response.empty?
+    end
+  end
+end

@@ -1,5 +1,5 @@
 require 'test_helper'
-require 'functional/shared/report_host_permissions_test'
+require_relative 'shared/report_host_permissions_test'
 
 class ReportsControllerTest < ActionController::TestCase
   include ::ReportHostPermissionsTest
