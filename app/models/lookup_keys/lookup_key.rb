@@ -9,6 +9,9 @@ class LookupKey < ActiveRecord::Base
   EQ_DELM  = "="
   VALUE_REGEX =/\A[^#{KEY_DELM}]+#{EQ_DELM}[^#{KEY_DELM}]+(#{KEY_DELM}[^#{KEY_DELM}]+#{EQ_DELM}[^#{KEY_DELM}]+)*\Z/
 
+  attr_accessible :key, :description, :override, :key_type, :default_value, :required, :validator_type, :use_puppet_default,
+      :validator_rule, :path, :variable, :id, :is_param, :puppetclass_id, :lookup_values_attributes, :lookup_values
+
   audited :associated_with => :audit_class, :allow_mass_assignment => true, :except => :lookup_values_count
   validates_lengths_from_database
 
@@ -57,6 +60,20 @@ class LookupKey < ActiveRecord::Base
   alias_attribute :override_values_count, :lookup_values_count
   alias_attribute :override_values, :lookup_values
   alias_attribute :override_value_ids, :lookup_value_ids
+  attr_accessible :lookup_values_attributes, :is_param, :id, :variable, :key
+
+  attr_accessible :avoid_duplicates, :default_value, :description,
+    :key, :key_type,
+    :lookup_values_attributes, :lookup_values, :lookup_value_ids,
+    :lookup_values_count,
+    :merge_overrides,
+    :override, :override_value_order, :override_values_count, :override_values,
+    :override_value_ids,
+    :path,
+    :puppetclass_id,
+    :use_puppet_default,
+    :validator_type, :validator_rule,
+    :variable, :variable_type
 
   attr_accessible :avoid_duplicates, :default_value, :description,
     :key, :key_type,

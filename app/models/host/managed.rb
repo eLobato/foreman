@@ -156,7 +156,8 @@ class Host::Managed < Host::Base
   audited :except => [:last_report, :puppet_status, :last_compile, :lookup_value_matcher], :allow_mass_assignment => true
   has_associated_audits
   #redefine audits relation because of the type change (by default the relation will look for auditable_type = 'Host::Managed')
-  has_many :audits, :foreign_key => :auditable_id, :class_name => Audited.audit_class.name, :conditions => { :auditable_type => 'Host' }
+  has_many :audits, -> { where(:auditable_type => 'Host') }, :foreign_key => :auditable_id,
+    :class_name => Audited.audit_class.name
 
   # some shortcuts
   alias_attribute :os, :operatingsystem
@@ -579,7 +580,7 @@ class Host::Managed < Host::Base
 
     new_hostgroup = self.hostgroup if initialized
     unless [new_hostgroup.try(:id), new_hostgroup.try(:friendly_id)].include? new_hostgroup_id
-      new_hostgroup = Hostgroup.find(new_hostgroup_id)
+      new_hostgroup = Hostgroup.friendly.find(new_hostgroup_id)
     end
     return attributes unless new_hostgroup
 
@@ -802,11 +803,11 @@ class Host::Managed < Host::Base
               cr     = ComputeResource.find_by_id(self.compute_resource_id)
               images = cr.try(:images)
               if images.blank?
-                [TemplateKind.find('finish')]
+                [TemplateKind.friendly.find('finish')]
               else
                 uuid       = self.compute_attributes[cr.image_param_name]
                 image_kind = images.find_by_uuid(uuid).try(:user_data) ? 'user_data' : 'finish'
-                [TemplateKind.find(image_kind)]
+                [TemplateKind.friendly.find(image_kind)]
               end
             else
               TemplateKind.all
