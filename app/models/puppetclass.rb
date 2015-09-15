@@ -5,10 +5,11 @@ class Puppetclass < ActiveRecord::Base
   friendly_id :name
   include Parameterizable::ByIdName
 
+  attr_accessible :name, :hostgroup_ids
   validates_lengths_from_database
   before_destroy EnsureNotUsedBy.new(:hosts, :hostgroups)
   has_many :environment_classes, :dependent => :destroy
-  has_many :environments, :through => :environment_classes, :uniq => true
+  has_many :environments, -> { uniq }, :through => :environment_classes
   has_and_belongs_to_many :operatingsystems
   has_many :hostgroup_classes
   has_many :hostgroups, :through => :hostgroup_classes, :dependent => :destroy
@@ -19,8 +20,8 @@ class Puppetclass < ActiveRecord::Base
   has_many :lookup_keys, :inverse_of => :puppetclass, :dependent => :destroy, :class_name => 'VariableLookupKey'
   accepts_nested_attributes_for :lookup_keys, :reject_if => ->(a) { a[:key].blank? }, :allow_destroy => true
   # param classes
-  has_many :class_params, :through => :environment_classes, :uniq => true,
-    :source => :puppetclass_lookup_key, :conditions => 'environment_classes.puppetclass_lookup_key_id is NOT NULL'
+  has_many :class_params, -> { where('environment_classes.puppetclass_lookup_key_id is NOT NULL').uniq },
+    :through => :environment_classes, :source => :puppetclass_lookup_key
   accepts_nested_attributes_for :class_params, :reject_if => ->(a) { a[:key].blank? }, :allow_destroy => true
 
   validates :name, :uniqueness => true, :presence => true, :no_whitespace => true
@@ -30,6 +31,9 @@ class Puppetclass < ActiveRecord::Base
   alias_attribute :smart_variable_ids, :lookup_key_ids
   alias_attribute :smart_class_parameters, :class_params
   alias_attribute :smart_class_parameter_ids, :class_param_ids
+
+  attr_accessible :smart_variables, :smart_variable_ids, :smart_class_parameters,
+    :smart_class_parameter_ids, :lookup_keys_attributes
 
   default_scope -> { order('puppetclasses.name') }
 

@@ -2,12 +2,10 @@ class ProvisioningTemplate < Template
   include Authorizable
   extend FriendlyId
   friendly_id :name
-  include Parameterizable::ByIdName
+  include Parameterizable::ByIdName 
 
   audited :allow_mass_assignment => true
 
-  attr_accessible :template_kind, :template_kind_id, :template_combinations_attributes,
-                  :operatingsystems, :operatingsystem_ids, :vendor
   validates :name, :uniqueness => true
   validates :template_kind_id, :presence => true, :unless => Proc.new {|t| t.snippet }
 

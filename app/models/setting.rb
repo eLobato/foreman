@@ -3,6 +3,7 @@ class Setting < ActiveRecord::Base
   friendly_id :name
   include ActiveModel::Validations
   self.inheritance_column = 'category'
+  attr_accessible :category, :description, :settings_type, :default, :full_name, :name, :value
 
   TYPES= %w{ integer boolean hash array string }
   FROZEN_ATTRS = %w{ name category full_name }
@@ -23,8 +24,6 @@ class Setting < ActiveRecord::Base
       record.send("validate_#{record.name}", record)
     end
   end
-
-  attr_accessible :name, :value, :description, :category, :settings_type, :default, :full_name
 
   validates_lengths_from_database
   # audit the changes to this model

@@ -4,6 +4,8 @@ class Architecture < ActiveRecord::Base
   friendly_id :name
   include Parameterizable::ByIdName
 
+  attr_accessible :name, :operatingsystem_ids
+
   before_destroy EnsureNotUsedBy.new(:hosts, :hostgroups)
   validates_lengths_from_database
 
@@ -11,6 +13,7 @@ class Architecture < ActiveRecord::Base
   has_many :hostgroups
   has_many :images, :dependent => :destroy
   has_and_belongs_to_many :operatingsystems
+
   validates :name, :presence => true, :uniqueness => true, :no_whitespace => true
   audited :allow_mass_assignment => true, :except => [:hosts_count, :hostgroups_count]
 
