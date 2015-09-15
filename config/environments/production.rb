@@ -42,6 +42,7 @@ Foreman::Application.configure do |app|
 
   # Eager load all classes under lib directory
   config.eager_load_paths += ["#{config.root}/lib"]
+  config.eager_load = true
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation can not be found)

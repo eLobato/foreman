@@ -12,7 +12,7 @@ module FindCommon
     raise ActiveRecord::RecordNotFound if scope.empty?
     result = scope.from_param(id) if scope.respond_to?(:from_param)
     result ||= scope.friendly.find(id) if scope.respond_to?(:friendly)
-    result ||= scope.find(id)
+    result || scope.find(id)
   end
 
   def resource_name(resource = controller_name)
