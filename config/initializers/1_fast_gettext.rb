@@ -4,6 +4,10 @@ require 'gettext_i18n_rails'
 locale_dir = File.join(Rails.root, 'locale')
 locale_domain = 'foreman'
 
+I18n.config.enforce_available_locales = false
+I18n.config.available_locales = Foreman::Gettext::Support.
+  available_locales(locale_domain, locale_dir)
+
 Foreman::Gettext::Support.register_available_locales locale_domain, locale_dir
 Foreman::Gettext::Support.add_text_domain locale_domain, locale_dir
 

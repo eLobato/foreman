@@ -28,7 +28,7 @@ class Api::V2::SmartClassParametersControllerTest < ActionController::TestCase
     get :index, {:host_id => non_existing_id}
     assert_response :not_found
     results = ActiveSupport::JSON.decode(@response.body)
-    assert_equal "Host with id '#{non_existing_id}' was not found", results["error"]["message"]
+    assert_equal "host with id '#{non_existing_id}' was not found", results["error"]["message"]
   end
 
   test "should get smart class parameters for a specific hostgroup" do
@@ -46,7 +46,7 @@ class Api::V2::SmartClassParametersControllerTest < ActionController::TestCase
     get :index, {:hostgroup_id => non_existing_id}
     assert_response :not_found
     results = ActiveSupport::JSON.decode(@response.body)
-    assert_equal "Hostgroup with id '#{non_existing_id}' was not found", results["error"]["message"]
+    assert_equal "hostgroup with id '#{non_existing_id}' was not found", results["error"]["message"]
   end
 
   test "should get smart class parameters for a specific puppetclass" do
@@ -64,7 +64,7 @@ class Api::V2::SmartClassParametersControllerTest < ActionController::TestCase
     get :index, {:puppetclass_id => non_existing_id}
     assert_response :not_found
     results = ActiveSupport::JSON.decode(@response.body)
-    assert_equal "Puppet class with id '#{non_existing_id}' was not found", results["error"]["message"]
+    assert_equal "puppetclass with id '#{non_existing_id}' was not found", results["error"]["message"]
   end
 
   test "should get smart class parameters for a specific environment" do
@@ -82,7 +82,7 @@ class Api::V2::SmartClassParametersControllerTest < ActionController::TestCase
     get :index, {:environment_id => non_existing_id}
     assert_response :not_found
     results = ActiveSupport::JSON.decode(@response.body)
-    assert_equal "Environment with id '#{non_existing_id}' was not found", results["error"]["message"]
+    assert_equal "environment with id '#{non_existing_id}' was not found", results["error"]["message"]
   end
 
   test "should get smart class parameters for a specific environment and puppetclass combination" do

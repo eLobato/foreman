@@ -11,7 +11,8 @@ module Foreman
         end
       end
 
-      def self.register_available_locales(locale_domain, locale_dir)
+      def self.available_locales(locale_domain, locale_dir)
+        return ['en'] if Rails.env.test?
         locale_type = detect_locale_type
 
         if Rails.env.development?
@@ -22,12 +23,12 @@ module Foreman
           locale_search_re   = Regexp.new(".*/([^/]*)/LC_MESSAGES/#{locale_domain}.#{locale_type}")
         end
 
+        Dir.glob(locale_search_path).collect {|f| locale_search_re.match(f)[1] }
+      end
+
+      def self.register_available_locales(locale_domain, locale_dir)
         begin
-          if Rails.env.test?
-            FastGettext.default_available_locales = ['en']
-          else
-            FastGettext.default_available_locales = Dir.glob(locale_search_path).collect {|f| locale_search_re.match(f)[1] }
-          end
+          FastGettext.default_available_locales = available_locales(locale_domain, locale_dir)
         rescue => e
           Rails.logger.warn "Unable to set available locales for domain #{locale_domain}: #{e}"
           FastGettext.default_available_locales = ['en']

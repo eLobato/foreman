@@ -6,6 +6,28 @@ class Hostgroup < ActiveRecord::Base
   include HostCommon
 
   include NestedAncestryCommon
+
+  attr_accessible :name, :use_image, :image_file, :vm_defaults, :title,
+    :grub_pass, :root_pass, :lookup_value_matcher,
+    # Model relations sorted in alphabetical order
+    :arch, :arch_id, :arch_name,
+    :architecture_id, :architecture_name,
+    :config_group_names, :config_group_ids,
+    :compute_profile_id, :compute_profile_name,
+    :domain_id, :domain_name,
+    :environment_id, :environment_name,
+    :group_parameters_attributes,
+    :lookup_values_attributes,
+    :medium_id, :medium_name,
+    :subnet_id, :subnet_name,
+    :realm_id, :realm_name,
+    :operatingsystem_id, :operatingsystem_name,
+    :os, :os_id, :os_name,
+    :ptable_id, :ptable_name,
+    :puppet_ca_proxy_id, :puppet_ca_proxy_name,
+    :puppet_proxy_id, :puppet_proxy_name,
+    :puppetclass_ids, :puppetclass_names
+
   validates :name, :presence => true, :uniqueness => {:scope => :ancestry, :case_sensitive => false}
   validates :title, :presence => true, :uniqueness => true
 

@@ -11,16 +11,36 @@ module Host
     friendly_id :name
     OWNER_TYPES = %w(User Usergroup)
 
+    attr_accessible :name, :managed, :type, :start, :mac, :ip,  :root_pass,
+      :is_owned_by, :enabled, :comment,
+      :overwrite, :capabilities, :provider, :last_compile, :interfaces,
+      # Model relations sorted in alphabetical order
+      :architecture, :architecture_id, :architecture_name,
+      :config_group, :config_group_ids, :config_group_names,
+      :domain, :domain_id, :domain_name,
+      :environment, :environment_id, :environment_name,
+      :hostgroup, :hostgroup_id, :hostgroup_name,
+      :location, :location_id, :location_name,
+      :medium, :medium_id, :medium_name,
+      :model, :model_id, :model_name,
+      :operatingsystem, :operatingsystem_id, :operatingsystem_name,
+      :organization, :organization_id, :organization_name,
+      :ptable, :ptable_id, :ptable_name,
+      :puppet_ca_proxy, :puppet_ca_proxy_id, :puppet_ca_proxy_name,
+      :puppet_proxy, :puppet_proxy_id, :puppet_proxy_name,
+      :puppetclasses, :puppetclass_ids, :puppetclass_names,
+      :progress_report, :progress_report_id, :progress_report_name,
+      :realm, :realm_id, :realm_name,
+      :subnet, :subnet_id, :subnet_name
+
     validates_lengths_from_database
     belongs_to :model, :counter_cache => :hosts_count
     has_many :fact_values, :dependent => :destroy, :foreign_key => :host_id
     has_many :fact_names, :through => :fact_values
-    has_many :interfaces, :dependent => :destroy, :inverse_of => :host, :class_name => 'Nic::Base',
-             :foreign_key => :host_id, :order => 'identifier'
-    has_one :primary_interface, :class_name => 'Nic::Base', :foreign_key => 'host_id',
-            :conditions => { :primary => true }
-    has_one :provision_interface, :class_name => 'Nic::Base', :foreign_key => 'host_id',
-            :conditions => { :provision => true }
+    has_many :interfaces, -> { order(:identifier) }, :dependent => :destroy, :inverse_of => :host, :class_name => 'Nic::Base',
+             :foreign_key => :host_id
+    has_one :primary_interface, -> { where(:primary => true) }, :class_name => 'Nic::Base', :foreign_key => 'host_id'
+    has_one :provision_interface, -> { where(:provision => true) }, :class_name => 'Nic::Base', :foreign_key => 'host_id'
     has_one :domain, :through => :primary_interface
     has_one :subnet, :through => :primary_interface
     accepts_nested_attributes_for :interfaces, :allow_destroy => true

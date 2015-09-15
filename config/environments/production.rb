@@ -42,6 +42,7 @@ Foreman::Application.configure do |app|
 
   # Eager load all classes under lib directory
   config.eager_load_paths += ["#{config.root}/lib"]
+  config.eager_load = true
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation can not be found)
@@ -51,11 +52,11 @@ Foreman::Application.configure do |app|
   config.active_support.deprecation = :notify
 
   # Compress JavaScripts and CSS
-  config.assets.compress = true
+  config.assets.js_compressor = :uglifier
 
   # Fallback to assets pipeline if a precompiled asset is missed:
   # that's the case when an engine with it's own assets is added to Foreman later in production.
-  config.assets.compile = true
+  config.assets.compile = false
 
   # Generate digests for assets URLs
   config.assets.digest = true

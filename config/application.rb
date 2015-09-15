@@ -20,7 +20,7 @@ else
     Class.new Rails::Railtie do
       console {Foreman.setup_console}
     end
-    Bundler.require(*Rails.groups(:assets => %w(development test)))
+    Bundler.require(*Rails.groups(:assets => %w(development test production)))
     if SETTINGS[:unattended]
       %w[ec2 fog libvirt ovirt vmware gce].each do |group|
         begin
@@ -85,7 +85,9 @@ end
 module Foreman
   class Application < Rails::Application
     # Setup additional routes by loading all routes file from routes directory
-    config.paths["config/routes"] += Dir[Rails.root.join("config/routes/**/*.rb")]
+    Dir["#{Rails.root}/config/routes/**/*.rb"].each do |route_file|
+      config.paths['config/routes.rb'] << route_file
+    end
 
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
@@ -122,10 +124,6 @@ module Foreman
     # Run "rake -D time" for a list of tasks for finding time zone names. Default is UTC.
     # config.time_zone = 'Central Time (US & Canada)'
     config.time_zone = 'UTC'
-
-    # The default locale is :en and all translations from config/locales/*.rb,yml are auto loaded.
-    # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
-    # config.i18n.default_locale = :de
 
     # Disable fieldWithErrors divs
     config.action_view.field_error_proc = Proc.new {|html_tag, instance| "#{html_tag}".html_safe }

@@ -63,6 +63,13 @@ class Host::Managed < Host::Base
   end
 
   include HostCommon
+  attr_accessible :build, :certname, :compute_attributes, :disk, :global_status,
+    :grub_pass, :interfaces_attributes, :installed_at, :image_id, :image_name,
+    :image_file, :lookup_values_attributes, :lookup_value_matcher, :last_report,
+    :otp, :owner, :owner_id, :owner_name, :owner_type, :provision_method,
+    :use_image, :uuid,
+    :compute_resource, :compute_resource_id, :compute_resource_name,
+    :compute_profile, :compute_profile_id, :compute_profile_name
 
   class Jail < ::Safemode::Jail
     allow :name, :diskLayout, :puppetmaster, :puppet_ca_server, :operatingsystem, :os, :environment, :ptable, :hostgroup,
@@ -154,7 +161,8 @@ class Host::Managed < Host::Base
   audited :except => [:last_report, :puppet_status, :last_compile, :lookup_value_matcher], :allow_mass_assignment => true
   has_associated_audits
   #redefine audits relation because of the type change (by default the relation will look for auditable_type = 'Host::Managed')
-  has_many :audits, :foreign_key => :auditable_id, :class_name => Audited.audit_class.name, :conditions => { :auditable_type => 'Host' }
+  has_many :audits, -> { where(:auditable_type => 'Host') },
+    :foreign_key => :auditable_id, :class_name => Audited.audit_class.name
 
   # some shortcuts
   alias_attribute :os, :operatingsystem
@@ -483,7 +491,7 @@ class Host::Managed < Host::Base
 
   def host_params_objects
     # Host parameters should always be first for the uniq order
-    (host_parameters + host_inherited_params_objects.reverse!).uniq {|param| param.name}
+    (host_parameters + host_inherited_params_objects.to_a.reverse!).uniq {|param| param.name}
   end
 
   # JSON is auto-parsed by the API, so these should be in the right format
@@ -632,7 +640,7 @@ class Host::Managed < Host::Base
 
     new_hostgroup = self.hostgroup if initialized
     unless [new_hostgroup.try(:id), new_hostgroup.try(:friendly_id)].include? new_hostgroup_id
-      new_hostgroup = Hostgroup.find(new_hostgroup_id)
+      new_hostgroup = Hostgroup.friendly.find(new_hostgroup_id)
     end
     return attributes unless new_hostgroup
 
@@ -852,11 +860,11 @@ class Host::Managed < Host::Base
               cr     = ComputeResource.find_by_id(self.compute_resource_id)
               images = cr.try(:images)
               if images.blank?
-                [TemplateKind.find('finish')]
+                [TemplateKind.friendly.find('finish')]
               else
                 uuid       = self.compute_attributes[cr.image_param_name]
                 image_kind = images.find_by_uuid(uuid).try(:user_data) ? 'user_data' : 'finish'
-                [TemplateKind.find(image_kind)]
+                [TemplateKind.friendly.find(image_kind)]
               end
             else
               TemplateKind.all

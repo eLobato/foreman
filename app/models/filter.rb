@@ -2,6 +2,9 @@ class Filter < ActiveRecord::Base
   include Taxonomix
   include Authorizable
 
+  attr_accessible :role_id, :resource_type, :permissions, :search,
+    :permission_ids, :permission_names
+
   class ScopedSearchValidator < ActiveModel::Validator
     def validate(record)
       resource_class = record.resource_class
@@ -20,8 +23,6 @@ class Filter < ActiveRecord::Base
     false
   end
 
-  attr_accessible :search, :resource_type, :permission_ids, :role_id, :unlimited,
-                  :organization_ids, :location_ids
   attr_writer :resource_type
   attr_accessor :unlimited
 

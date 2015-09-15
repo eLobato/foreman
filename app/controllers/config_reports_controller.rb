@@ -10,7 +10,10 @@ class ConfigReportsController < ApplicationController
   def show
     # are we searching for the last report?
     if params[:id] == "last"
-      conditions = { :host_id => Host.authorized(:view_hosts).find(params[:host_id]).try(:id) } if params[:host_id].present?
+      if params[:host_id].present?
+        conditions = { :host_id => resource_finder(Host.authorized(:view_hosts),
+                                                   params[:host_id]).try(:id) }
+      end
       params[:id] = resource_base.where(conditions).maximum(:id)
     end
 
