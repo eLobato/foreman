@@ -8,7 +8,7 @@ class Usergroup < ActiveRecord::Base
   validates_lengths_from_database
   before_destroy EnsureNotUsedBy.new(:hosts), :ensure_last_admin_group_is_not_deleted
 
-  has_many :user_roles, -> { where(:owner_type => self.to_s) }, :dependent => :destroy, :foreign_key => 'owner_id'
+  has_many :user_roles, -> { where(:owner_type => 'Usergroup') }, :dependent => :destroy, :foreign_key => 'owner_id'
   has_many :roles, :through => :user_roles, :dependent => :destroy
 
   has_many :usergroup_members, :dependent => :destroy
@@ -18,7 +18,7 @@ class Usergroup < ActiveRecord::Base
 
   has_many :cached_usergroups, :through => :cached_usergroup_members, :source => :usergroup
   has_many :cached_usergroup_members, :foreign_key => 'usergroup_id'
-  has_many :usergroup_parents, -> { where(:conditions => "member_type = 'Usergroup'") }, :dependent => :destroy,
+  has_many :usergroup_parents, -> { where("member_type = 'Usergroup'") }, :dependent => :destroy,
     :foreign_key => 'member_id', :class_name => 'UsergroupMember'
   has_many :parents,    :through => :usergroup_parents, :source => :usergroup, :dependent => :destroy
 
