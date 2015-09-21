@@ -7,7 +7,6 @@ class ConfigGroupClass < ActiveRecord::Base
 
   belongs_to :puppetclass
   belongs_to :config_group, :counter_cache => true
-  include AccessibleAttributes
 
   validates :puppetclass, :presence => true
   validates :config_group, :presence => true,

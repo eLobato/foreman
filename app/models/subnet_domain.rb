@@ -1,7 +1,6 @@
 class SubnetDomain < ActiveRecord::Base
   belongs_to :domain
   belongs_to :subnet
-  include AccessibleAttributes
 
   validates :subnet_id, :presence => true
   validates :domain_id, :presence => true, :uniqueness => {:scope => :subnet_id}

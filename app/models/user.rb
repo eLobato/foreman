@@ -41,8 +41,12 @@ class User < ActiveRecord::Base
   has_many :mail_notifications, :through => :user_mail_notifications
 
   accepts_nested_attributes_for :user_mail_notifications, :allow_destroy => true, :reject_if => :reject_empty_intervals
-  attr_accessible :password, :password_confirmation
-  include AccessibleAttributes
+  attr_accessible :password, :password_confirmation, :login, :firstname,
+                  :lastname, :mail, :locale, :timezone, :auth_source_id,
+                  :mail_enabled, :location_ids, :default_location_id,
+                  :organization_ids, :default_organization_id, :auth_source,
+                  :default_location_id, :default_organization_id, :role_ids,
+                  :mail_notification_ids, :locations, :organizations
 
   attr_name :login
 

@@ -1,6 +1,5 @@
 class Widget < ActiveRecord::Base
   belongs_to :user
-  include AccessibleAttributes
 
   validates :user_id, :name, :template, :presence => true
   validates :sizex, :sizey, :col, :row, :numericality => {:only_integer => true}

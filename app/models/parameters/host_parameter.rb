@@ -1,6 +1,6 @@
 class HostParameter < Parameter
   belongs_to_host :foreign_key => :reference_id, :inverse_of => :host_parameters
-  include AccessibleAttributes
+
   audited :except => [:priority], :associated_with => :host, :allow_mass_assignment => true
   validates :name, :uniqueness => {:scope => :reference_id}
   validates :host, :presence => true

@@ -1,6 +1,5 @@
 class HostConfigGroup < ActiveRecord::Base
   include Authorizable
-  include AccessibleAttributes
 
   audited :associated_with => :host, :allow_mass_assignment => true
   audited :associated_with => :hostgroup, :allow_mass_assignment => true

@@ -6,6 +6,8 @@ class SmartProxy < ActiveRecord::Base
   include Parameterizable::ByIdName
   audited :allow_mass_assignment => true
 
+  attr_accessible :name, :url, :location_ids, :organization_ids
+
   validates_lengths_from_database
   before_destroy EnsureNotUsedBy.new(:hosts, :hostgroups, :subnets, :domains, [:puppet_ca_hosts, :hosts], [:puppet_ca_hostgroups, :hostgroups], :realms)
   #TODO check if there is a way to look into the tftp_id too
@@ -18,7 +20,7 @@ class SmartProxy < ActiveRecord::Base
   has_many :puppet_ca_hosts, :class_name => 'Host::Managed',  :foreign_key => 'puppet_ca_proxy_id'
   has_many :puppet_ca_hostgroups, :class_name => 'Hostgroup', :foreign_key => 'puppet_ca_proxy_id'
   has_many :realms,                                           :foreign_key => 'realm_proxy_id'
-  include AccessibleAttributes
+
   URL_HOSTNAME_MATCH = %r{\A(?:http|https):\/\/([^:\/]+)}
   validates :name, :uniqueness => true, :presence => true
   validates :url, :presence => true, :format => { :with => URL_HOSTNAME_MATCH, :message => N_('is invalid - only  http://, https:// are allowed') },

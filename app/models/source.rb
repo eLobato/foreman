@@ -2,7 +2,6 @@ class Source < ActiveRecord::Base
   validates_lengths_from_database
   has_many :reports, :through => :logs
   has_many :logs
-  include AccessibleAttributes
 
   validates :value, :digest, :presence => true
 

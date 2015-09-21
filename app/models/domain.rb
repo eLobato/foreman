@@ -8,6 +8,8 @@ class Domain < ActiveRecord::Base
   include StripLeadingAndTrailingDot
   include Parameterizable::ByIdName
 
+  attr_accessible :name, :fullname, :dns_id, :location_ids, :organization_ids, :domain_parameters_attributes
+
   audited :allow_mass_assignment => true, :except => [:hosts_count, :hostgroups_count]
 
   validates_lengths_from_database
@@ -25,8 +27,6 @@ class Domain < ActiveRecord::Base
   has_many :primary_hosts, :through => :primary_interfaces, :source => :host
 
   accepts_nested_attributes_for :domain_parameters, :allow_destroy => true
-  attr_accessible :domain_parameters_attributes
-  include AccessibleAttributes
   include ParameterValidators
   validates :name, :presence => true, :uniqueness => true
   validates :fullname, :uniqueness => true, :allow_blank => true, :allow_nil => true

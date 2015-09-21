@@ -2,7 +2,7 @@ class Feature < ActiveRecord::Base
   extend FriendlyId
   friendly_id :name
   has_and_belongs_to_many :smart_proxies
-  include AccessibleAttributes
+
   validates_lengths_from_database
   validates :name, :presence => true
 

@@ -6,7 +6,6 @@ class MailNotification < ActiveRecord::Base
 
   has_many :user_mail_notifications, :dependent => :destroy
   has_many :users, :through => :user_mail_notifications
-  include AccessibleAttributes
 
   scoped_search :on => :name, :complete_value => true
   scoped_search :on => :description, :complete_value => true

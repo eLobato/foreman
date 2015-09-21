@@ -3,8 +3,7 @@ class Setting < ActiveRecord::Base
   friendly_id :name
   include ActiveModel::Validations
   self.inheritance_column = 'category'
-  include AccessibleAttributes
-  attr_accessible :category
+  attr_accessible :category, :description, :settings_type, :default, :full_name, :name, :value
 
   TYPES= %w{ integer boolean hash array string }
   FROZEN_ATTRS = %w{ name category full_name }

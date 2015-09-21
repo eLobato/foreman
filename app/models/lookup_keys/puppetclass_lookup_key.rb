@@ -2,7 +2,6 @@ class PuppetclassLookupKey < LookupKey
   has_many :environment_classes, :dependent => :destroy
   has_many :environments, -> { uniq }, :through => :environment_classes
   has_many :param_classes, :through => :environment_classes, :source => :puppetclass
-  include AccessibleAttributes
 
   scoped_search :in => :param_classes, :on => :name, :rename => :puppetclass, :complete_value => true
 

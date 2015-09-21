@@ -1,7 +1,6 @@
 class UserMailNotification < ActiveRecord::Base
   belongs_to :user
   belongs_to :mail_notification
-  include AccessibleAttributes
 
   validates :user, :presence => true
   validates :mail_notification, :presence => true
