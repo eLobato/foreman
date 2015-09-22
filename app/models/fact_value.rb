@@ -20,7 +20,7 @@ class FactValue < ActiveRecord::Base
     includes(:fact_name).where("fact_names.name <> ?",:_timestamp)
   }
   scope :timestamp_facts, lambda {
-    joins(:fact_name).where("fact_names.name = ?",:_timestamp)
+    includes(:fact_name).where("fact_names.name = ?",:_timestamp)
   }
   scope :my_facts, lambda {
     if !User.current.admin? || Organization.expand(Organization.current).present? || Location.expand(Location.current).present?
