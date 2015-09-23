@@ -626,7 +626,7 @@ class Host::Managed < Host::Base
 
     new_hostgroup = self.hostgroup if initialized
     unless [new_hostgroup.try(:id), new_hostgroup.try(:friendly_id)].include? new_hostgroup_id
-      new_hostgroup = Hostgroup.find(new_hostgroup_id)
+      new_hostgroup = Hostgroup.friendly.find(new_hostgroup_id)
     end
     return attributes unless new_hostgroup
 
@@ -844,11 +844,11 @@ class Host::Managed < Host::Base
               cr     = ComputeResource.find_by_id(self.compute_resource_id)
               images = cr.try(:images)
               if images.blank?
-                [TemplateKind.find('finish')]
+                [TemplateKind.friendly.find('finish')]
               else
                 uuid       = self.compute_attributes[cr.image_param_name]
                 image_kind = images.find_by_uuid(uuid).try(:user_data) ? 'user_data' : 'finish'
-                [TemplateKind.find(image_kind)]
+                [TemplateKind.friendly.find(image_kind)]
               end
             else
               TemplateKind.all
