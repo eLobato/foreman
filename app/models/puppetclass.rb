@@ -30,6 +30,9 @@ class Puppetclass < ActiveRecord::Base
   alias_attribute :smart_variable_ids, :lookup_key_ids
   alias_attribute :smart_class_parameters, :class_params
   alias_attribute :smart_class_parameter_ids, :class_param_ids
+  include AccessibleAttributes
+  attr_accessible :smart_variables, :smart_variable_ids, :smart_class_parameters,
+    :smart_class_parameter_ids, :lookup_keys_attributes
 
   default_scope -> { order('puppetclasses.name') }
 

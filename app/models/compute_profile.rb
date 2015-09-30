@@ -5,7 +5,6 @@ class ComputeProfile < ActiveRecord::Base
   include Parameterizable::ByIdName
 
   validates_lengths_from_database
-  attr_accessible :name
   audited
   has_associated_audits
 
@@ -14,6 +13,7 @@ class ComputeProfile < ActiveRecord::Base
   has_many :compute_resources, :through => :compute_attributes
   has_many_hosts :dependent => :nullify
   has_many :hostgroups
+  include AccessibleAttributes
 
   validates :name, :presence => true, :uniqueness => true
 
