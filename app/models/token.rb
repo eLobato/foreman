@@ -1,7 +1,7 @@
 class Token < ActiveRecord::Base
-  attr_accessible :value, :expires
   validates_lengths_from_database
   belongs_to_host :foreign_key => :host_id
+  include AccessibleAttributes
 
   validates :value, :host_id, :expires, :presence => true
 

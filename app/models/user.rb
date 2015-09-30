@@ -41,6 +41,8 @@ class User < ActiveRecord::Base
   has_many :mail_notifications, :through => :user_mail_notifications
 
   accepts_nested_attributes_for :user_mail_notifications, :allow_destroy => true, :reject_if => :reject_empty_intervals
+  attr_accessible :password, :password_confirmation
+  include AccessibleAttributes
 
   attr_name :login
 

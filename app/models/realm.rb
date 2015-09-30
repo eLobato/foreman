@@ -13,6 +13,7 @@ class Realm < ActiveRecord::Base
   belongs_to :realm_proxy, :class_name => "SmartProxy"
   has_many_hosts
   has_many :hostgroups
+  include AccessibleAttributes
 
   scoped_search :on => :hosts_count
   scoped_search :on => :name, :complete_value => true
