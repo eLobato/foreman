@@ -4,6 +4,7 @@ class ExternalUsergroup < ActiveRecord::Base
 
   belongs_to :usergroup, :inverse_of => :external_usergroups
   belongs_to :auth_source
+  include AccessibleAttributes
 
   validates_lengths_from_database
   validates :name, :uniqueness => { :scope => :auth_source_id }

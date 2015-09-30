@@ -17,12 +17,15 @@
 
 class AuthSource < ActiveRecord::Base
   include Authorizable
+
   audited :allow_mass_assignment => true
 
   validates_lengths_from_database :except => [:name, :account_password, :host, :attr_login, :attr_firstname, :attr_lastname, :attr_mail]
   before_destroy EnsureNotUsedBy.new(:users)
   has_many :users
   has_many :external_usergroups, :dependent => :destroy
+  attr_protected :type
+  include AccessibleAttributes
 
   validates :name, :presence => true, :uniqueness => true, :length => { :maximum => 60 }
 

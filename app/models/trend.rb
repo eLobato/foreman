@@ -5,6 +5,7 @@ class Trend < ActiveRecord::Base
 
   belongs_to :trendable, :polymorphic => true
   has_many :trend_counters, :dependent => :destroy
+  include AccessibleAttributes
 
   scope :has_value, -> { where('fact_value IS NOT NULL').order("fact_value") }
   scope :types, -> { where(:fact_value => nil) }
