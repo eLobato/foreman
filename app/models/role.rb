@@ -47,6 +47,7 @@ class Role < ActiveRecord::Base
 
   has_many :permissions, :through => :filters
   attr_protected :builtin
+  include AccessibleAttributes
 
   validates :name, :presence => true, :uniqueness => true
   validates :builtin, :inclusion => { :in => 0..2 }

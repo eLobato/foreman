@@ -6,6 +6,10 @@ class LookupValue < ActiveRecord::Base
   audited :associated_with => :lookup_key, :allow_mass_assignment => true
 
   belongs_to :lookup_key, :counter_cache => true
+  include AccessibleAttributes
+  attr_accessor :host_or_hostgroup
+  attr_accessible :host_or_hostgroup, :value, :match, :lookup_key_id
+
   validates :match, :presence => true, :uniqueness => {:scope => :lookup_key_id}, :format => LookupKey::VALUE_REGEX
   validate :value_present?
   delegate :key, :to => :lookup_key
@@ -13,8 +17,6 @@ class LookupValue < ActiveRecord::Base
 
   before_validation :validate_and_cast_value, :unless => Proc.new{|p| p.use_puppet_default }
   validate :validate_value, :ensure_fqdn_exists, :ensure_hostgroup_exists
-
-  attr_accessor :host_or_hostgroup
 
   serialize :value
   attr_name :match

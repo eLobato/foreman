@@ -20,6 +20,7 @@ class UserRole < ActiveRecord::Base
   belongs_to :role
 
   has_many :cached_user_roles, :dependent => :destroy
+  include AccessibleAttributes
 
   validates :role_id, :presence => true
   validates :owner_id, :uniqueness => {:scope => [:role_id, :owner_type],

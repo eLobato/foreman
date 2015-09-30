@@ -23,6 +23,8 @@ class Usergroup < ActiveRecord::Base
   has_many :parents,    :through => :usergroup_parents, :source => :usergroup, :dependent => :destroy
 
   has_many_hosts :as => :owner
+  attr_accessible :external_usergroups_attributes
+  include AccessibleAttributes
   validates :name, :uniqueness => true, :presence => true
 
   # The text item to see in a select dropdown menu

@@ -1,6 +1,8 @@
 class Message < ActiveRecord::Base
   has_many :reports, :through => :logs
   has_many :logs
+  include AccessibleAttributes
+
   validates_lengths_from_database
   validates :value, :digest, :presence => true
 

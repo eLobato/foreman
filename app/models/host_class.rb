@@ -6,6 +6,7 @@ class HostClass < ActiveRecord::Base
   audited :associated_with => :host, :allow_mass_assignment => true
   belongs_to_host
   belongs_to :puppetclass
+  include AccessibleAttributes
 
   validates :host, :presence => true
   validates :puppetclass_id, :presence => true, :uniqueness => {:scope => :host_id}

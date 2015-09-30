@@ -2,6 +2,8 @@ class EnvironmentClass < ActiveRecord::Base
   belongs_to :environment
   belongs_to :puppetclass
   belongs_to :puppetclass_lookup_key
+  include AccessibleAttributes
+
   validates :puppetclass_lookup_key_id, :uniqueness => {:scope => [:environment_id, :puppetclass_id]}
   validates :puppetclass_id, :environment_id, :presence => true
 

@@ -1,9 +1,9 @@
 class ComputeAttribute < ActiveRecord::Base
-  attr_accessible :compute_profile_id, :compute_resource_id, :vm_attrs
   audited :associated_with => :compute_profile
 
   belongs_to :compute_resource
   belongs_to :compute_profile
+  include AccessibleAttributes
 
   validates :compute_profile_id, :presence => true, :uniqueness => {:scope => :compute_resource_id}
   validates :compute_resource_id, :presence => true, :uniqueness => {:scope => :compute_profile_id}

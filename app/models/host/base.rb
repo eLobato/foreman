@@ -25,6 +25,7 @@ module Host
 
     belongs_to :location
     belongs_to :organization
+    attr_accessible :hostgroup_name, :id, :created_at, :updated_at
 
     alias_attribute :hostname, :name
     validates :name, :presence   => true, :uniqueness => true, :format => {:with => Net::Validations::HOST_REGEXP}

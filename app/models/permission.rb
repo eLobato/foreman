@@ -1,11 +1,10 @@
 class Permission < ActiveRecord::Base
-  attr_accessible :name, :resource_type
-
   validates_lengths_from_database
   validates :name, :presence => true, :uniqueness => true
 
   has_many :filterings, :dependent => :destroy
   has_many :filters, :through => :filterings
+  include AccessibleAttributes
 
   scoped_search :on => :name, :complete_value => true
   scoped_search :on => :resource_type

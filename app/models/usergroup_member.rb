@@ -1,6 +1,7 @@
 class UsergroupMember < ActiveRecord::Base
   belongs_to :member, :polymorphic => true
   belongs_to :usergroup
+  include AccessibleAttributes
 
   before_validation :ensure_no_cycle
   before_update :remove_old_cache_for_old_record
