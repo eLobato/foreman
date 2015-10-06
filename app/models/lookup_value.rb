@@ -2,6 +2,8 @@ class LookupValue < ActiveRecord::Base
   include Authorizable
   include CounterCacheFix
 
+  attr_accessible :host_or_hostgroup, :lookup_key_id, :value, :match
+
   validates_lengths_from_database
   audited :associated_with => :lookup_key, :allow_mass_assignment => true
 
