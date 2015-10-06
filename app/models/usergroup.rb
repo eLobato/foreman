@@ -5,6 +5,8 @@ class Usergroup < ActiveRecord::Base
   friendly_id :name
   include Parameterizable::ByIdName
 
+  attr_accessible :external_usergroups_attributes
+
   validates_lengths_from_database
   before_destroy EnsureNotUsedBy.new(:hosts), :ensure_last_admin_group_is_not_deleted
 
