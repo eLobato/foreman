@@ -7,14 +7,15 @@ class Environment < ActiveRecord::Base
   before_destroy EnsureNotUsedBy.new(:hosts, :hostgroups)
 
   has_many :environment_classes, :dependent => :destroy
-  has_many :puppetclasses, :through => :environment_classes, :uniq => true
+  has_many :puppetclasses, -> { uniq }, :through => :environment_classes
   has_many_hosts
   has_many :hostgroups
   has_many :trends, :as => :trendable, :class_name => "ForemanTrend"
-
-  validates :name, :uniqueness => true, :presence => true, :alphanumeric => true
   has_many :template_combinations, :dependent => :destroy
   has_many :provisioning_templates, :through => :template_combinations
+  include AccessibleAttributes
+
+  validates :name, :uniqueness => true, :presence => true, :alphanumeric => true
 
   # with proc support, default_scope can no longer be chained
   # include all default scoping here

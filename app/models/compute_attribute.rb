@@ -1,9 +1,9 @@
 class ComputeAttribute < ActiveRecord::Base
-  attr_accessible :compute_profile_id, :compute_resource_id, :vm_attrs
   audited :associated_with => :compute_profile
 
   belongs_to :compute_resource
   belongs_to :compute_profile
+  include AccessibleAttributes
 
   validates :compute_profile_id, :presence => true, :uniqueness => {:scope => :compute_resource_id}
   validates :compute_resource_id, :presence => true, :uniqueness => {:scope => :compute_profile_id}
@@ -12,6 +12,8 @@ class ComputeAttribute < ActiveRecord::Base
   before_save :update_name
 
   def method_missing(method, *args, &block)
+    return super if method.to_s[-1]=="="
+    return super unless respond_to?(:vm_attrs)
     return vm_attrs["#{method}"] if vm_attrs.keys.include?(method.to_s)
     raise Foreman::Exception.new(N_('%s is an unknown attribute'), method)
   end

@@ -1,5 +1,7 @@
 class VariableLookupKey < LookupKey
   belongs_to :puppetclass, :inverse_of => :lookup_keys, :counter_cache => :variable_lookup_keys_count
+  attr_accessible :puppetclass_id
+  include AccessibleAttributes
 
   validates :puppetclass, :presence => true
   validates :key, :uniqueness => true

@@ -47,6 +47,7 @@ class Role < ActiveRecord::Base
 
   has_many :permissions, :through => :filters
   attr_protected :builtin
+  include AccessibleAttributes
 
   validates :name, :presence => true, :uniqueness => true
   validates :builtin, :inclusion => { :in => 0..2 }
@@ -56,6 +57,10 @@ class Role < ActiveRecord::Base
   def initialize(*args)
     super(*args)
     self.builtin = 0
+  end
+
+  def permissions=(new_permissions)
+    add_permissions(new_permissions.map(&:name)) if new_permissions.present?
   end
 
   # Returns true if the role has the given permission
