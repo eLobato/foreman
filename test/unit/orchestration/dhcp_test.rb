@@ -176,7 +176,7 @@ class DhcpOrchestrationTest < ActiveSupport::TestCase
     end
     h.reload
     h.mac = next_mac(h.mac)
-    bmc = h.interfaces.bmc.first
+    bmc = h.interfaces.bmc.first.reload
     assert !bmc.new_record?
     bmc.mac = next_mac(bmc.mac)
     assert h.valid?
