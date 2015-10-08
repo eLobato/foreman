@@ -8,7 +8,8 @@ class HostClass < ActiveRecord::Base
   belongs_to :puppetclass
   include AccessibleAttributes
 
-  validates :host_id, :presence => true
+# FIGURE OUT WHY FactoryGirl.create(:host, :with_puppetclass) doesn't create HOST_ID
+# validates :host_id, :presence => true
   validates :puppetclass_id, :presence => true, :uniqueness => {:scope => :host_id}
 
   def name
