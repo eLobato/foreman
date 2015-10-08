@@ -27,6 +27,7 @@ class ComputeResourceTest < ActiveSupport::TestCase
     as_admin do
       assert compute_resource.save!
     end
+    Fog.unmock!
     assert_equal compute_resource.password, "abcdef"
     refute_equal compute_resource.password_in_db, "abcdef"
   end
