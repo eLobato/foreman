@@ -8,6 +8,8 @@ class Domain < ActiveRecord::Base
   include StripLeadingAndTrailingDot
   include Parameterizable::ByIdName
 
+  attr_accessible :domain_parameters_attributes
+
   audited :allow_mass_assignment => true, :except => [:hosts_count, :hostgroups_count]
 
   validates_lengths_from_database
