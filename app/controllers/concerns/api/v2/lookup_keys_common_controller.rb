@@ -35,21 +35,11 @@ module Api::V2::LookupKeysCommonController
     end
 
     define_method("find_#{model_string}") do
-      begin
-        instance_variable_set("@#{model_string}",
-                              model.authorized(:"view_#{model_string.pluralize}").
-                                    from_param(params["#{model_string}_id"]))
+      instance_variable_set("@#{model_string}",
+                            model.authorized(:"view_#{model_string.pluralize}").
+                            from_param(params["#{model_string}_id"]))
 
-        # Handle the case where .from_param will not raise any exception.
-        # If the model is parameterized by name, it will use find_by_name and
-        # a failed search will just return nil.
-        if instance_variable_get("@#{model_string}").nil? &&
-             model.included_modules.include?(Parameterizable::ByName)
-          model_not_found(model_string)
-        end
-      rescue ActiveRecord::RecordNotFound
-        model_not_found(model_string)
-      end
+      model_not_found(model_string) if instance_variable_get("@#{model_string}").nil?
     end
   end
 
