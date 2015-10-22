@@ -154,7 +154,7 @@ class TaxHost
 
   # populate used_ids for 3 non-standard_id's
   def user_ids(hosts = self.hosts)
-    User.except_admin.eager_load(:direct_hosts).
+    User.unscoped.except_admin.eager_load(:direct_hosts).
       where(:hosts => { :id => hosts.map(&:id) }).
       pluck('DISTINCT users.id')
   end
