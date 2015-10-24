@@ -8,7 +8,7 @@ class HostClass < ActiveRecord::Base
   belongs_to :puppetclass
   include AccessibleAttributes
 
-  validates :host, :presence => true
+#  validates :host, :presence => true
   validates :puppetclass_id, :presence => true, :uniqueness => {:scope => :host_id}
 
   def name

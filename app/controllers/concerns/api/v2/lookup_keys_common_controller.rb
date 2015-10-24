@@ -35,11 +35,13 @@ module Api::V2::LookupKeysCommonController
     end
 
     define_method("find_#{model_string}") do
-      instance_variable_set("@#{model_string}",
-                            model.authorized(:"view_#{model_string.pluralize}").
-                            from_param(params["#{model_string}_id"]))
-
-      model_not_found(model_string) if instance_variable_get("@#{model_string}").nil?
+      scope = model.authorized(:"view_#{model_string.pluralize}")
+      begin
+        instance_variable_set("@#{model_string}",
+                              resource_finder(scope, params["#{model_string}_id"]))
+      rescue ActiveRecord::RecordNotFound
+        model_not_found(model_string)
+      end
     end
   end
 
