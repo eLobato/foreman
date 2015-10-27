@@ -63,9 +63,11 @@ class Host::Managed < Host::Base
   end
 
   include HostCommon
-  include AccessibleAttributes
-  attr_accessible :interfaces_attributes, :ip, :mac, :lookup_values_attributes,
-    :progress_report_id, :is_owned_by, :overwrite, :id, :created_at, :updated_at, :domain_id
+  attr_accessible :interfaces_attributes, :ip, :mac, :lookup_values_attributes, :hostgroup,
+    :progress_report_id, :is_owned_by, :overwrite, :id, :created_at, :updated_at, :domain_id,
+    :last_compile, :last_report, :installed_at, :owner_id, :owner_type, :use_image, :image_file,
+    :uuid, :certname, :image_id, :otp, :grub_pass, :lookup_value_matcher, :global_status, :owner,
+    :location, :organization, :ptable, :medium, :operatingsystem, :puppet_proxy, :architecture, :environment
 
   class Jail < ::Safemode::Jail
     allow :name, :diskLayout, :puppetmaster, :puppet_ca_server, :operatingsystem, :os, :environment, :ptable, :hostgroup,

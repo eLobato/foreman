@@ -1,5 +1,4 @@
 class CommonParameter < Parameter
-  include AccessibleAttributes
   audited :except => [:priority], :allow_mass_assignment => true
   validates :name, :uniqueness => true
 

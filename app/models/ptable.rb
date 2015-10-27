@@ -20,7 +20,6 @@ class Ptable < Template
   validates :layout, :presence => true
   validates :name, :uniqueness => true
   validate_inclusion_in_families :os_family
-  include AccessibleAttributes
 
   # these can't be shared in parent class, scoped search can't handle STI properly
   # tested with scoped_search 3.2.0
@@ -33,7 +32,7 @@ class Ptable < Template
   scoped_search :on => :os_family, :rename => 'family', :complete_value => :true
 
   alias_attribute :layout, :template
-  attr_accessible :layout, :location_ids, :organization_ids
+  attr_accessible :layout, :location_ids, :organization_ids, :name, :default, :snippet, :os_family, :audit_comment, :operatingsystem_ids
 
   # with proc support, default_scope can no longer be chained
   # include all default scoping here

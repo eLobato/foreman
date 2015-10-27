@@ -2,13 +2,13 @@ class LookupValue < ActiveRecord::Base
   include Authorizable
   include CounterCacheFix
 
+  attr_accessible :match, :value, :lookup_key_id, :id, :_destroy, :host_or_hostgroup, :use_puppet_default, :lookup_key
+
   validates_lengths_from_database
   audited :associated_with => :lookup_key, :allow_mass_assignment => true
 
   belongs_to :lookup_key, :counter_cache => true
-  include AccessibleAttributes
   attr_accessor :host_or_hostgroup
-  attr_accessible :host_or_hostgroup, :value, :match, :lookup_key_id
 
   validates :match, :presence => true, :uniqueness => {:scope => :lookup_key_id}, :format => LookupKey::VALUE_REGEX
   validate :value_present?

@@ -11,8 +11,7 @@ class ConfigGroup < ActiveRecord::Base
   has_many :host_config_groups
   has_many_hosts :through => :host_config_groups, :source => :host, :source_type => 'Host::Managed'
   has_many :hostgroups, :through => :host_config_groups, :source => :host, :source_type => 'Hostgroup'
-  attr_accessible :class_environments
-  include AccessibleAttributes
+  attr_accessible :class_environments, :name
 
   validates :name, :presence => true, :uniqueness => true
 

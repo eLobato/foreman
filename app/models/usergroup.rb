@@ -5,6 +5,8 @@ class Usergroup < ActiveRecord::Base
   friendly_id :name
   include Parameterizable::ByIdName
 
+  attr_accessible  :name, :admin, :user_ids, :role_ids, :usergroup_ids
+
   validates_lengths_from_database
   before_destroy EnsureNotUsedBy.new(:hosts), :ensure_last_admin_group_is_not_deleted
 
@@ -24,7 +26,7 @@ class Usergroup < ActiveRecord::Base
 
   has_many_hosts :as => :owner
   attr_accessible :external_usergroups_attributes
-  include AccessibleAttributes
+
   validates :name, :uniqueness => true, :presence => true
 
   # The text item to see in a select dropdown menu

@@ -7,6 +7,8 @@ class Medium < ActiveRecord::Base
   include Parameterizable::ByIdName
   audited :allow_mass_assignment => true
 
+  attr_accessible :name, :path, :media_path, :config_path, :image_path, :os_family, :location_ids, :organization_ids, :operatingsystems
+
   validates_lengths_from_database
 
   before_destroy :ensure_hosts_not_in_build
@@ -14,7 +16,6 @@ class Medium < ActiveRecord::Base
   has_and_belongs_to_many :operatingsystems
   has_many_hosts :dependent => :nullify
   has_many :hostgroups, :dependent => :nullify
-  include AccessibleAttributes
 
   # We need to include $ in this as $arch, $release, can be in this string
   VALID_NFS_PATH=/\A([-\w\d\.]+):(\/[\w\d\/\$\.]+)\Z/

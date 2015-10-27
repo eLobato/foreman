@@ -4,7 +4,6 @@ class Permission < ActiveRecord::Base
 
   has_many :filterings, :dependent => :destroy
   has_many :filters, :through => :filterings
-  include AccessibleAttributes
 
   scoped_search :on => :name, :complete_value => true
   scoped_search :on => :resource_type
