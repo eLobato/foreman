@@ -4,8 +4,9 @@ class ComputeProfile < ActiveRecord::Base
   friendly_id :name
   include Parameterizable::ByIdName
 
-  validates_lengths_from_database
   attr_accessible :name
+
+  validates_lengths_from_database
   audited
   has_associated_audits
 
