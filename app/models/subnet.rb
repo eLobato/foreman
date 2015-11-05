@@ -215,7 +215,7 @@ class Subnet < ActiveRecord::Base
   private
 
   # Translate ISC dhcp subnet options names provided by dhcp proxy into foreman subnet attributes names
-  def parse_dhcp_options(options)
+  def self.parse_dhcp_options(options)
     attrs = {}
     attrs[:gateway]          = options["routers"][0]             if options["routers"] && options["routers"][0]
     attrs[:dns_primary]      = options["domain_name_servers"][0] if options["domain_name_servers"] && options["domain_name_servers"][0]
