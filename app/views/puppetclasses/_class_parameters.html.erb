@@ -1,23 +1,24 @@
 <% lookup_keys = overridable_lookup_keys(puppetclass, obj) %>
-<% value_hash  = value_hash_cache(obj) if obj.class.model_name == "Host" %>
-<% can_edit    = authorized_via_my_scope("host_editing", "edit_params") %>
-<% lookup_keys.each_with_index do |key,i| %>
-  <% overridden = key.overridden?(obj) %>
-  <% disabled = can_edit && !overridden %>
-  <% lookup_value = obj.lookup_values.detect{|v| v.lookup_key_id == key.id} %>
+<% lookup_keys.each_with_index do |lookup_key, index| %>
+  <% overridden = lookup_key.overridden?(obj) %>
+  <% disabled = can_edit_params? && !overridden %>
+  <%
+    # Checks if lookup_value exists (if overridden)
+    lookup_value = find_lookup_value(obj, lookup_key.id)
+  %>
   <% error = lookup_value.try(:errors) %>
   <% value_prefix = "#{obj.class.model_name.downcase}[lookup_values_attributes][#{i}]" %>
-    <tr id="puppetclass_<%= puppetclass.id %>_params[<%= key.id %>]" class="fields <%= 'overridden' if overridden %>">
+    <tr id="puppetclass_<%= puppetclass.id %>_params[<%= lookup_key.id %>]" class="fields <%= 'overridden' if overridden %>">
       <%= content_tag(:td, puppetclass.name, :rowspan => lookup_keys.size, :class => "ellipsis") if i == 0 %>
       <td class="ellipsis param_name">
-        <%= key.key %>
+        <%= lookup_key.key %>
       </td>
       <td <%= "class=has-error" if error.present? %>>
         <div class="input-group">
-          <%= key_with_diagnostic(obj, key, i, lookup_value, value_hash) %>
+          <%= key_with_diagnostic(obj, lookup_key, i, lookup_value) %>
           <span class="input-group-btn">
             <%= fullscreen_button("$(this).parent().prev()") %>
-            <%= override_buttons(can_edit, overridden) %>
+            <%= override_buttons(can_edit_params?, overridden) %>
           </span>
         </div>
         <% if error.present? %>
@@ -31,8 +32,8 @@
                       :onchange => "toggleUsePuppetDefaultValue(this, 'value')",
                       :hidden   => disabled,
                       :title    => _('Use Puppet default'),
-                      :checked  => lookup_value.try(:use_puppet_default)) if key.type == "PuppetclassLookupKey" %>
-        <% if can_edit %>
+                      :checked  => lookup_value.try(:use_puppet_default)) if lookup_key.type == "PuppetclassLookupKey" %>
+        <% if can_edit_params? %>
           <%= hidden_field(value_prefix, :lookup_key_id, :value => key.id, :disabled => disabled, :class => 'send_to_remove') %>
           <%= hidden_field(value_prefix, :id, :value => lookup_value.try(:id), :disabled => disabled, :class => 'send_to_remove') %>
           <%= hidden_field(value_prefix, :_destroy, :value => false, :disabled => disabled, :class => 'send_to_remove destroy') %>

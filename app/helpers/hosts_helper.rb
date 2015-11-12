@@ -479,4 +479,27 @@ module HostsHelper
     return true unless params[:host]
     !params[:host][field]
   end
+
+  def lookup_value_and_matcher(host, lookup_key)
+    value_hash = value_hash_cache(host)
+    value_for_key = value_hash[lookup_key.id] &&
+      value_hash[lookup_key.id][lookup_key.key]
+
+    if value_for_key.present?
+      [value_for_key[:value],
+       "#{value_for_key[:element]} (#{value_for_key[:element_name]})"]
+    else
+      [lookup_key.default_value, _("Default value")]
+    end
+  end
+
+  def lookup_key_diagnostic(lookup_key)
+    if lookup_key.required
+      explanation.prepend(_("Required parameter without value.<br/><b>Please override!</b><br/>"))
+      icon = "warning-sign"
+    else
+      explanation.prepend(_("Optional parameter without value.<br/><i>Won't be given to Puppet.</i><br/>"))
+      icon = "exclamation-sign"
+    end
+  end
 end

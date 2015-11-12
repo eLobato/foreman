@@ -72,15 +72,22 @@ module LookupKeysHelper
     klass.class_params.override.where(:environment_classes => {:environment_id => host.environment}) + klass.lookup_keys
   end
 
-  def key_with_diagnostic(obj, key, index, lookup_value, value_hash = nil)
-    if obj.class.model_name == "Hostgroup"
-      value, matcher = obj.inherited_lookup_value key
-    else # host
-      value_for_key = value_hash[key.id] && value_hash[key.id][key.key]
-      value, matcher = value_for_key ? [value_for_key[:value], "#{value_for_key[:element]} (#{value_for_key[:element_name]})"] : [key.default_value, _("Default value")]
-    end
+  def can_edit_params?
+    authorized_via_my_scope('host_editing', 'edit_params')
+  end
 
-    original_value = key.value_before_type_cast value
+  def can_remove_params?
+    authorized_via_my_scope('host_editing', 'destroy_params')
+  end
+
+  def find_lookup_value(obj, lookup_key_id)
+    obj.lookup_values.find_or_initialize(:lookup_key_id => lookup_key_id)
+  end
+
+  def lookup_key_with_diagnostic(obj, lookup_key, index, lookup_value)
+    value, matcher = lookup_value_and_matcher(obj, lookup_key)
+
+    original_value = lookup_key.value_before_type_cast value
     overriden_value = lookup_value.try(:value)
     no_value = value.blank? && overriden_value.blank?
 
@@ -88,9 +95,10 @@ module LookupKeysHelper
                      <b>Type:</b> %{type}<br/>
                      <b>Matcher:</b> %{matcher}<br/>
                      <b>Inherited value:</b> %{original_value}") %
-                    { :desc => key.description, :type => key.key_type, :matcher => matcher, :original_value => original_value }
+                    { :desc => lookup_key.description, :type => lookup_key.key_type,
+                      :matcher => matcher, :original_value => original_value }
     if no_value && obj.class.model_name == "Host"
-      if key.required
+      if lookup_key.required
         explanation.prepend(_("Required parameter without value.<br/><b>Please override!</b><br/>"))
         icon = "warning-sign"
       else
@@ -105,9 +113,20 @@ module LookupKeysHelper
                             value_for_form,
                             { :popover => diagnostic_helper,
                               :name => "#{obj.class.model_name.downcase}[lookup_values_attributes][#{index}][value]",
-                              :disabled => !key.overridden?(obj) || lookup_value.try(:use_puppet_default),
+                              :disabled => !lookup_key.overridden?(obj) || lookup_value.try(:use_puppet_default),
                               :original_value => original_value
                             })
+  end
+
+  def edit_lookup_key_parameter(value_prefix, lookup_key, lookup_value)
+    return '' unless can_edit_params?
+    hidden_field(value_prefix, :lookup_key_id, :value => lookup_key.id, :disabled => disabled, :class => 'send_to_remove') +
+    hidden_field(value_prefix, :id, :value => lookup_value.try(:id), :disabled => disabled, :class => 'send_to_remove')
+  end
+
+  def remove_lookup_key_parameter(value_prefix)
+    return '' unless can_remove_params?
+    hidden_field(value_prefix, :_destroy, :value => false, :disabled => disabled, :class => 'send_to_remove destroy')
   end
 
   def override_buttons(can_edit, overridden)
