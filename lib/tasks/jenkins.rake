@@ -3,8 +3,6 @@ begin
 
   namespace :jenkins do
     task :unit do
-      Rails.env = 'test'
-      Rake::Task['db:migrate'].invoke
       system "rake jenkins:setup:minitest test RAILS_ENV=test"
       exit($?.exitstatus)
     end
