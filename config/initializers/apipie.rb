@@ -19,7 +19,7 @@ Apipie.configure do |config|
     :operatingsystem_families => Operatingsystem.families.join(", "),
     :providers => ComputeResource.providers.join(', '),
     :default_nic_type => InterfaceTypeMapper::DEFAULT_TYPE.humanized_name.downcase,
-    :template_kinds => -> { TemplateKind.scoped.map(&:name).join(", ") },
+    :template_kinds => -> { TemplateKind.where(nil).map(&:name).join(", ") },
   }
 
   config.translate = lambda do |str, loc|
