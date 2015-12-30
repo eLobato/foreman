@@ -5,9 +5,7 @@ class HostgroupTest < ActiveSupport::TestCase
     User.current = users :admin
   end
   test "name can't be blank" do
-    host_group = Hostgroup.new :name => "  "
-    assert host_group.name.strip.empty?
-    assert !host_group.save
+    assert validate_presence_of(:name)
   end
 
   test "name strips leading and trailing white spaces" do
@@ -18,11 +16,7 @@ class HostgroupTest < ActiveSupport::TestCase
   end
 
   test "name must be unique" do
-    host_group = Hostgroup.new :name => "some hosts"
-    assert host_group.save
-
-    other_host_group = Hostgroup.new :name => "some hosts"
-    assert !other_host_group.save
+    assert validate_uniqueness_of(:name)
   end
 
   def setup_user(operation)

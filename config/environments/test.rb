@@ -44,8 +44,8 @@ Foreman::Application.configure do
   # Raise exception on mass assignment protection for Active Record models
   config.active_record.mass_assignment_sanitizer = :strict
 
-  #enables a few aliases - context, should, and should_eventually methods
-  config.minitest_spec_rails.mini_shoulda = true
+  # Enables a few aliases - context, should, and should_eventually methods
+  config.minitest_spec_rails.mini_shoulda = false
 
   # Use separate cache stores for parallel_tests
   config.cache_store = :file_store, Rails.root.join("tmp", "cache", "paralleltests#{ENV['TEST_ENV_NUMBER']}")

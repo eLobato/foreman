@@ -36,7 +36,7 @@ class AuthSourceLdap < AuthSource
   validates :attr_login, :attr_firstname, :attr_lastname, :attr_mail, :presence => true, :if => Proc.new { |auth| auth.onthefly_register? }
   validates :attr_login, :attr_firstname, :attr_lastname, :attr_mail, :length => {:maximum => 30}, :allow_nil => true
   validates :account_password, :length => {:maximum => 60}, :allow_nil => true
-  validates :port, :presence => true, :numericality => {:only_integer => true}
+  validates :port, :presence => true
   validates :server_type, :presence => true, :inclusion => { :in => SERVER_TYPES.keys.map(&:to_s) }
   validate :validate_ldap_filter, :unless => Proc.new { |auth| auth.ldap_filter.blank? }
 

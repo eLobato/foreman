@@ -6,6 +6,8 @@ class TaxonomyTest < ActiveSupport::TestCase
     SETTINGS.stubs(:[]).with(:locations_enabled).returns(false)
   end
 
+  should validate_uniqueness_of(:name)
+
   test '.enabled?' do
     assert Taxonomy.enabled?(:organization)
     refute Taxonomy.enabled?(:location)
@@ -76,14 +78,6 @@ class TaxonomyTest < ActiveSupport::TestCase
     as_user(user) do
       assert_equal org1, Organization.expand(org1)
       assert_equal [org1, org2], Organization.expand([org1, org2])
-    end
-  end
-
-  test "name uniqueness" do
-    FactoryGirl.create(:organization, :name => "ACME")
-    # If there's a validation error the create method raises an exception
-    assert_nothing_raised do
-      FactoryGirl.create(:location, :name => "ACME")
     end
   end
 end

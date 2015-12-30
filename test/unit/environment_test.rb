@@ -9,16 +9,11 @@ class EnvironmentTest < ActiveSupport::TestCase
   end
 
   test "should have name" do
-    env = Environment.new
-    refute env.valid?
+    assert validate_presence_of(:name)
   end
 
   test "name should be unique" do
-    as_admin do
-      env = Environment.create :name => "foo"
-      env2 = Environment.new :name => env.name
-      refute env2.valid?
-    end
+    assert validate_uniqueness_of(:name)
   end
 
   test "to_label should print name" do

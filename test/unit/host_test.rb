@@ -8,11 +8,7 @@ class HostTest < ActiveSupport::TestCase
     Foreman::Model::EC2.any_instance.stubs(:image_exists?).returns(true)
   end
 
-  test "should not save without a hostname" do
-    host = Host.new
-    host.valid?
-    assert host.errors[:name].include?("can't be blank")
-  end
+  should validate_presence_of(:name)
 
   test "should not save with invalid hostname" do
     host = Host.new :name => "invalid_hostname"

@@ -48,12 +48,13 @@ class SettingTest < ActiveSupport::TestCase
     assert_equal 3, setting.value
   end
 
-  def test_default_value_can_be_nil
-    assert Setting.create(:name => "foo", :default => nil, :description => "test foo")
-    assert_equal nil, Setting["foo"]
-  end
+  should validate_presence_of(:name)
+  should validate_presence_of(:default)
+  should validate_uniqueness_of(:name)
+  should validate_inclusion_of(:settings_type).in(Setting::TYPES)
+  should allow_value(nil).for(:default)
 
-  def test_should_return_updated_value_only_after_it_gets_presistent
+  def test_should_return_updated_value_only_after_it_is saved
     setting = Setting.create(:name => "foo", :value => 5, :default => 5, :description => "test foo")
 
     setting.value = 3
@@ -87,11 +88,6 @@ class SettingTest < ActiveSupport::TestCase
     Setting.create!(:name => 'administrator', :description => 'Test', :default => 'root@localhost')
     s = Setting.find_by_name 'administrator'
     assert_equal 'Test', s.description
-  end
-
-  def test_create_with_missing_attrs_does_not_persist
-    setting = Setting.create(:name => "foo")
-    assert_equal false, setting.persisted?
   end
 
   def test_create_exclamation_with_missing_attrs_raises_exception

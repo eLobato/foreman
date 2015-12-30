@@ -10,15 +10,11 @@ class UsergroupTest < ActiveSupport::TestCase
   end
 
   test "name should be unique" do
-    one = FactoryGirl.create(:usergroup)
-    two = FactoryGirl.build(:usergroup, :name => one.name)
-
-    refute two.valid?
+    assert validate_uniqueness_of(:name)
   end
 
   test "name can't be blank" do
-    group = FactoryGirl.build(:usergroup, :name => "")
-    refute group.valid?
+    assert validate_presence_of(:name)
   end
 
   test "name is unique across user as well as usergroup" do
@@ -92,12 +88,8 @@ class UsergroupTest < ActiveSupport::TestCase
   end
 
   test "removes user join model records" do
-    ug1 = Usergroup.where(:name => "ug1").first_or_create
-    u1  = FactoryGirl.build(:user)
-    ug1.users = [u1]
-    assert_difference('UsergroupMember.count', -1) do
-      ug1.destroy
-    end
+    assert have_many(:usergroup_members).dependent(:destroy)
+    assert have_many(:users).dependent(:destroy)
   end
 
   test "removes all cached_user_roles when roles are disassociated" do
