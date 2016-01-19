@@ -26,7 +26,10 @@ module ComputeResourcesHelper
     html = vm.ready? ? { :data => { :confirm =>_("Are you sure you want to power %{act} %{vm}?") % { :act => action_string(vm).downcase.strip, :vm => vm }}, :class => "btn btn-danger" } :
                        { :class => "btn btn-info" }
 
-    display_link_if_authorized "Power #{action_string(vm)}", opts, html.merge(:method => :put)
+    link_to_if_authorized(
+      icon_text('power-off', "Power #{action_string(vm)}", :kind => 'fa'),
+      opts,
+      html.merge(:method => :put))
   end
 
   def vm_pause_action(vm, authorizer = nil)

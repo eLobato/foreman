@@ -1,6 +1,11 @@
-<div class='col-md-offset-4 col-md-4'>
-  <%= alert :header => (_(controller_name.camelize.singularize) rescue nil) + ' ' + _('not found'),
-    :text => _('Please try to update your request'),
-    :actions => link_to(_('Back'), main_app.root_path, :class => 'btn btn-default'),
-    :class => 'alert-warning' %>
+<% content_for(:title, resource_not_found) %>
+<div class="blank-slate-pf">
+	<div class="blank-slate-pf-icon">
+		<%= icon_text("tasks", "", :kind => "fa") %>
+	</div>
+	<h1><%= resource_not_found %></h1>
+	<%= _('Please try to update your request') %>
+	<div class="blank-slate-pf-main-action">
+		<%= link_to(_('Back'), main_app.root_path, :class => 'btn btn-primary btn-lg') %>
+	</div>
 </div>

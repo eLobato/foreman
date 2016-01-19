@@ -189,11 +189,11 @@ module ApplicationHelper
   end
 
   def checked_icon(condition)
-    image_tag("toggle_check.png") if condition
+    content_tag(:span, "", :class => 'fa fa-check') if condition
   end
 
   def locked_icon(condition, hovertext)
-    ('<span class="glyphicon glyphicon-lock" title="%s"/>' % hovertext).html_safe if condition
+    ('<span class="fa fa-lock" title="%s"/>' % hovertext).html_safe if condition
   end
 
   def searchable?
@@ -399,6 +399,11 @@ module ApplicationHelper
   def generate_links_for(sub_model)
     return _("None found") if sub_model.empty?
     sub_model.map {|model| link_to(model.to_label, { :controller => model.class.model_name.plural.downcase, :action => :index, :search => "name = #{model.name}" })}.to_sentence
+  end
+
+  def resource_not_found
+    (_(controller_name.camelize.singularize) rescue _('Resource')) +
+     ' ' + _('not found')
   end
 
   private

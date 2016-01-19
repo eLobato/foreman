@@ -69,7 +69,7 @@ module LayoutHelper
       options[:disabled] = true if unset_button
       addClass options, 'form-control'
       pass = f.password_field(attr, options) +
-      '<span class="glyphicon glyphicon-warning-sign input-addon"
+      '<span class="pficon pficon-warning-triangle-o input-addon"
              title="'.html_safe + _('Caps lock ON') +
              '" style="display:none"></span>'.html_safe
       if unset_button
@@ -353,15 +353,16 @@ module LayoutHelper
   end
 
   def popover(title, msg, options = {})
-    options[:icon] ||= 'info-sign'
-    content_tag(:a, icon_text(options[:icon], title), { :rel => "popover",
-                                                        :data => { :content => msg,
-                                                                   :"original-title" => title,
-                                                                   :trigger => "focus",
-                                                                   :container => 'body',
-                                                                   :html => true },
-                                                        :role => 'button',
-                                                        :tabindex => '-1' }.deep_merge(options))
+    options[:icon] ||= 'info'
+    content_tag(:a, icon_text(options[:icon], title, :kind => 'pficon'),
+                { :rel => "popover",
+                  :data => { :content => msg,
+                             :"original-title" => title,
+                             :trigger => "focus",
+                             :container => 'body',
+                             :html => true },
+                             :role => 'button',
+                             :tabindex => '-1' }.deep_merge(options))
   end
 
   def will_paginate(collection = nil, options = {})
@@ -408,13 +409,15 @@ module LayoutHelper
   end
 
   def icon_text(i, text = "", opts = {})
-    opts[:kind] ||=  "glyphicon"
-    (content_tag(:span,"", :class=>"#{opts[:kind] + " " + opts[:kind]}-#{i} #{opts[:class]}", :title => opts[:title]) + " " + text).html_safe
+    opts[:kind] ||= "glyphicon"
+    (content_tag(:span, "",
+                 :class => "#{opts[:kind] + " " + opts[:kind]}-#{i} #{opts[:class]}",
+                 :title => opts[:title]) + " " + text).html_safe
   end
 
   def alert(opts = {})
     opts[:close]  = true if opts[:close].nil?
-    opts[:header] ||= _("Warning!")
+    opts[:header] ||= _("Warning")
     opts[:text]   ||= _("Alert")
     html_class    = "alert #{opts[:class]} "
     html_class    += 'alert-dismissable' if opts[:close]

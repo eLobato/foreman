@@ -105,7 +105,7 @@ class ComputeResource < ActiveRecord::Base
 
   # Override this method to specify provider name
   def self.provider_friendly_name
-    self.name.split('::').last()
+    self.name.split('::').last
   end
 
   def provider_friendly_name

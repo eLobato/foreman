@@ -24,13 +24,12 @@
       <%= text_f f, :name, :disabled => @template.locked? %>
 
       <% if show_default? %>
-        <%= checkbox_f f, :default, :label=>_('Default'), :help_block => default_template_description %>
+        <%= checkbox_f f, :default, :label => _('Default'),
+          :help_inline => popover('', default_template_description) %>
       <% end -%>
 
       <%= render "custom_tabs", :f => f if type == 'ptable' %>
       <%= render_if_exists "#{@type_name_plural}/_alerts" %>
-
-
 
       <% if pxe_with_building_hosts?(@template) -%>
         <% warning_text = (_("Warning: The template is associated to at least one host in build mode. To apply the change, disable and enable build mode on hosts to update the live templates or choose to %s their configuration from 'Select Action' menu") % link_to(_('recreate'), building_hosts_path(@template))).html_safe %>
@@ -46,7 +45,6 @@
         <div class="col-md-12">
           <div class="editor-container">
             <%= render :partial => 'editor/toolbar', :locals => {:show_preview => true} %>
-
             <%= alert :class => 'alert-danger hide', :id => 'preview_error', :close => false %>
             <%= textarea_f f, :template, :class => "editor_source", :label =>:none, :disabled => @template.locked?, :size => "max",
                             :'data-file-name' => @template.name, :'data-render-path' => url_for(template_hash_for_member(@template, 'preview')) %>
