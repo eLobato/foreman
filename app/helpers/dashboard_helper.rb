@@ -58,14 +58,20 @@ module DashboardHelper
   end
 
   def render_overview(report, options = {})
-    data = [{:label=>_('Active'), :data => report[:active_hosts_ok_enabled],:color => report_color[:active_hosts_ok_enabled]},
-            {:label=>_('Error'), :data =>report[:bad_hosts_enabled], :color => report_color[:bad_hosts_enabled]},
-            {:label=>_('OK'), :data =>report[:ok_hosts_enabled],:color => report_color[:ok_hosts_enabled]},
-            {:label=>_('Pending changes'), :data =>report[:pending_hosts_enabled],:color => report_color[:pending_hosts_enabled]},
-            {:label=>_('Out of sync'), :data =>report[:out_of_sync_hosts_enabled],:color => report_color[:out_of_sync_hosts_enabled]},
-            {:label=>_('No report'), :data =>report[:reports_missing],:color => report_color[:reports_missing]},
-            {:label=>_('Notification disabled'), :data =>report[:disabled_hosts],:color => report_color[:disabled_hosts]}]
-    flot_pie_chart 'overview', _('Host Configuration Status'), data, options.merge(:search => "search_by_legend")
+    chart = [
+      { :label=>_('Active'), :data => report[:active_hosts_ok_enabled] },
+      { :label=>_('Error'), :data =>report[:bad_hosts_enabled] },
+      { :label=>_('OK'), :data =>report[:ok_hosts_enabled] },
+      { :label=>_('Pending changes'), :data =>report[:pending_hosts_enabled] },
+      { :label=>_('Out of sync'), :data =>report[:out_of_sync_hosts_enabled] },
+      { :label=>_('No report'), :data =>report[:reports_missing] } ,
+      { :label=>_('Notification disabled'), :data =>report[:disabled_hosts] }
+    ]
+    react_component('DonutChart',
+                    :columns => chart_name_data(chart),
+                    :groups => [chart_names(chart)],
+                    :className => options[:class],
+                    :id => 'overview')
   end
 
   def render_run_distribution(hosts, options = {})
