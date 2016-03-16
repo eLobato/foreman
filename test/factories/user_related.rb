@@ -10,7 +10,7 @@ FactoryGirl.define do
   end
 
   factory :user do
-    auth_source { AuthSourceInternal.first }
+    auth_source { FactoryGirl.build(:auth_source_internal) }
     password 'password'
     sequence(:login) {|n| "user#{n}" }
 

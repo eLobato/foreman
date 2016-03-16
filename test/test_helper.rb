@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'spork'
+require 'fileutils'
 
 Spork.prefork do
   # Loading more in this block will cause your tests to run faster. However,
@@ -21,6 +22,8 @@ Spork.prefork do
   require 'capybara/poltergeist'
   require 'functional/shared/basic_rest_response_test'
   require 'facet_test_helper'
+  ActiveRecord::Base.establish_connection :adapter => :nulldb
+  require 'nulldb/rails'
 
   Capybara.register_driver :poltergeist do |app|
     opts = {

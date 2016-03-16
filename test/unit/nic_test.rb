@@ -3,7 +3,7 @@ require 'test_helper'
 class NicTest < ActiveSupport::TestCase
   def setup
     disable_orchestration
-    User.current = users :admin
+    User.current = FactoryGirl.build(:user, :admin)
 
     @nic = FactoryGirl.build(:nic_managed, :host => FactoryGirl.build(:host, :managed => true))
   end

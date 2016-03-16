@@ -3,8 +3,8 @@ require 'test_helper'
 
 class UserTest < ActiveSupport::TestCase
   def setup
-    User.current = users :admin
-    @user = User.create :auth_source => auth_sources(:one), :login => "foo", :mail  => "foo@bar.com"
+    User.current = FactoryGirl.build_stubbed(:user, :admin)
+    @user = FactoryGirl.build_stubbed(:user, :admin, :login => 'foo', :mail => 'foo@bar.com')
   end
 
   # Presence
@@ -603,7 +603,7 @@ class UserTest < ActiveSupport::TestCase
     # A regular setup block would run before the global setup
     # leaving User.current = users :admin
     def editing_self_helper
-      User.current = users(:one)
+      User.current = FactoryGirl.build_stubbed(:user)
       @options = {:controller => "users", :action => "edit", :id => User.current.id}
     end
 

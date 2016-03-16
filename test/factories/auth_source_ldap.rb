@@ -1,4 +1,10 @@
 FactoryGirl.define do
+  factory :auth_source_internal do
+    sequence(:name) { |n| "auth_source_internal" }
+  end
+end
+
+FactoryGirl.define do
   factory :auth_source_ldap do
     sequence(:name) { |n| "auth_source_ldap_#{n}" }
     sequence(:host) { |n| "host_#{n}" }
