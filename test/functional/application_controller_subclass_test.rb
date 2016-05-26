@@ -206,4 +206,22 @@ class TestableResourcesControllerTest < ActionController::TestCase
       refute_nil actual_scope.where_values.index{|condition| condition.left.name == 'field1'}
     end
   end
+
+  context 'topbar sweeper' do
+    test 'when cache does not match session_id, new fragment is created' do
+      get :index, {}, set_session_user
+      fragment = TopbarSweeper.fragment_name(session[:user])
+      assert_equal session.id, Rails.cache.fetch("#{fragment}-session_id")
+    end
+
+    test 'when cache matches session_id, do not do anything' do
+      session_key = "#{TopbarSweeper.fragment_name(set_session_user[:user])}-session_id"
+      Rails.cache.expects(:fetch).
+        with(session_key).
+        returns(@request.session.id)
+      Rails.cache.expects(:delete).
+        with(TopbarSweeper.full_fragment_name(set_session_user[:user])).never
+      get :index, {}, set_session_user
+    end
+  end
 end
