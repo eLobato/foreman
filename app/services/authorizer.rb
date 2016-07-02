@@ -1,20 +1,19 @@
 class Authorizer
+  include AuthorizerCache
+
   attr_accessor :user, :base_collection, :organization_ids, :location_ids
 
   def initialize(user, options = {})
-    @cache = HashWithIndifferentAccess.new { |h, k| h[k] = HashWithIndifferentAccess.new }
     self.user = user
     self.base_collection = options.delete(:collection)
+    invalidate_cache
   end
 
   def can?(permission, subject = nil)
-    if subject.nil?
-      user.permissions.where(:name => permission).present?
-    else
-      return true if user.admin?
-      collection = @cache[subject.class.to_s][permission] ||= find_collection(subject.class, :permission => permission)
-      collection.include?(subject)
-    end
+    return user.permissions.where(:name => permission).present? if subject.nil?
+    return true if user.admin?
+    update_cache(subject.class, permission)
+    cached_subject(subject.class.to_s)[permission].include?(subject)
   end
 
   def find_collection(resource_class, options = {})
