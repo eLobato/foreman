@@ -19,6 +19,9 @@
 //= require lookup_keys
 //= require editable/bootstrap-editable
 //= require editable/rails
+//= require peek
+//= require peek/views/performance_bar
+//= require peek/views/rblineprof
 
 $(document).on('ContentLoad', onContentLoad);
 

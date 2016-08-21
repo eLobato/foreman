@@ -489,4 +489,8 @@ Foreman::Application.routes.draw do
       get :random_name
     end
   end
+
+  if Rails.env.development?
+    mount Peek::Railtie => '/peek'
+  end
 end

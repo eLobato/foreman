@@ -45,6 +45,7 @@
     <!--[if lt IE 8]>
       <%= _('You are using an unsupported browser.') %>
     <![endif]-->
+    <%= render "peek/bar" %>
     <%= render "home/topbar" if User.current %>
 
     <%= yield(:content) %>
