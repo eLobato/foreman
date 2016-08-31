@@ -194,6 +194,40 @@ module Taxonomix
     end
   end
 
+  def taxonomies
+    TaxableTaxonomy.where(:taxable_id => self.id, :taxable_type => self.class.to_s).map(&:taxonomy)
+  end
+
+  def taxonomies=(new_taxonomies)
+    Taxonomy.enabled_taxonomies.each do |taxonomy_kind|
+      type = taxonomy_kind.singularize.humanize
+      taxonomies = new_taxonomies.select { |t| t.type == type }
+      self.public_send(:"#{taxonomy_kind}=", taxonomies)
+    end
+  end
+
+  # This does not work for 'reverse'
+  def all_taxonomies
+    return taxonomies unless self.class.include? NestedAncestryCommon
+    (taxonomies + subtree.flat_map(&:taxonomies)).uniq
+  end
+
+  def taxonomy_and_child_ids(taxonomies)
+    ids = []
+    send(taxonomies).each do |taxonomy|
+      ids += taxonomy.subtree_ids
+    end
+    ids.uniq
+  end
+
+  def location_and_child_ids
+    taxonomy_and_child_ids(:locations)
+  end
+
+  def organization_and_child_ids
+    taxonomy_and_child_ids(:organizations)
+  end
+
   protected
 
   def taxonomy_foreign_key_conditions

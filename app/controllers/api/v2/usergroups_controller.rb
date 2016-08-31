@@ -2,12 +2,16 @@ module Api
   module V2
     class UsergroupsController < V2::BaseController
       include Foreman::Controller::Parameters::Usergroup
+      include Api::TaxonomyScope
 
       before_action :find_optional_nested_object
       before_action :find_resource, :only => %w{show update destroy}
 
       api :GET, "/usergroups/", N_("List all user groups")
+      api :GET, "/locations/:location_id/usergroups", N_("List all usergroups for location")
+      api :GET, "/organizations/:organization_id/usergroups", N_("List all usergroups for organization")
       param_group :search_and_pagination, ::Api::V2::BaseController
+      param_group :taxonomy_scope, ::Api::V2::BaseController
 
       def index
         @usergroups = resource_scope_for_index
@@ -26,6 +30,7 @@ module Api
           param :user_ids, Array, :require => false
           param :usergroup_ids, Array, :require => false
           param :role_ids, Array, :require => false
+          param_group :taxonomies, ::Api::V2::BaseController
         end
       end
 
@@ -56,6 +61,10 @@ module Api
 
       def allowed_nested_id
         %w(user_id usergroup_id)
+      end
+
+      def skip_nested_id
+        %w(location_id organization_id)
       end
     end
   end

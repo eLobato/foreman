@@ -315,6 +315,41 @@ class UsergroupMemberTest < ActiveSupport::TestCase
     assert_includes @semiadmin_user.cached_user_roles.map(&:role), @admin_role
   end
 
+  context 'taxonomies transitivity' do
+    setup do
+      @usergroup_member = FactoryGirl.build(:user_usergroup_member)
+      usergroup = @usergroup_member.usergroup
+      usergroup.organizations = [taxonomies(:organization1)]
+      usergroup.locations = [taxonomies(:location1)]
+      @usergroup_member.save
+    end
+
+    test 'member gets taxonomies from user group' do
+      assert_equal @usergroup_member.usergroup.taxonomies.sort,
+        @usergroup_member.member.taxonomies.sort
+    end
+
+    context 'deletion' do
+      test 'member keeps own taxonomies' do
+        member = @usergroup_member.member
+        member.organizations = [taxonomies(:organization2)]
+        member.locations = [taxonomies(:location2)]
+        @usergroup_member.destroy
+        assert_equal [taxonomies(:organization2)], member.organizations
+        assert_equal [taxonomies(:location2)], member.locations
+      end
+
+      test 'member keeps own taxonomies when they overlap with usergroup' do
+        member = @usergroup_member.member
+        member.organizations = [taxonomies(:organization1)]
+        member.locations = [taxonomies(:location1)]
+        @usergroup_member.destroy
+        assert_equal [taxonomies(:organization1)], member.organizations
+        assert_equal [taxonomies(:location1)], member.locations
+      end
+    end
+  end
+
   def setup_redundant_scenario
     as_admin do
       @semiadmins = FactoryGirl.create :usergroup, :name => 'um_semiadmins'

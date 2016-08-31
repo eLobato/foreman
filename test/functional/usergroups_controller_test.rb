@@ -90,4 +90,9 @@ class UsergroupsControllerTest < ActionController::TestCase
       assert_select 'span', {:text => 'bbb', :count => 0 }
     end
   end
+
+  context 'taxonomies' do
+    test 'nested user group inherits the taxonomies from the hierarchy' do
+    end
+  end
 end

@@ -217,9 +217,8 @@ Foreman::Application.routes.draw do
       resources :usergroups, :except => [:new, :edit] do
         resources :users, :except => [:new, :edit]
         resources :usergroups, :except => [:new, :edit]
-      end
-
-      resources :usergroups, :except => [:new, :edit] do
+        (resources :locations, :only => [:index, :show]) if SETTINGS[:locations_enabled]
+        (resources :organizations, :only => [:index, :show]) if SETTINGS[:organizations_enabled]
         resources :external_usergroups, :except => [:new, :edit] do
           put :refresh, :on => :member
         end
@@ -352,6 +351,7 @@ Foreman::Application.routes.draw do
           resources :hostgroups, :only => [:index, :show]
           resources :environments, :only => [:index, :show]
           resources :users, :only => [:index, :show]
+          resources :usergroups, :only => [:index, :show]
           resources :config_templates, :only => [:index, :show]
           resources :provisioning_templates, :only => [:index, :show]
           resources :ptables, :only => [:index, :show]
@@ -374,6 +374,7 @@ Foreman::Application.routes.draw do
             resources :hostgroups, :only => [:index, :show]
             resources :environments, :only => [:index, :show]
             resources :users, :only => [:index, :show]
+            resources :usergroups, :only => [:index, :show]
             resources :config_templates, :only => [:index, :show]
             resources :provisioning_templates, :only => [:index, :show]
             resources :ptables, :only => [:index, :show]
@@ -395,6 +396,7 @@ Foreman::Application.routes.draw do
           resources :hostgroups, :only => [:index, :show]
           resources :environments, :only => [:index, :show]
           resources :users, :only => [:index, :show]
+          resources :usergroups, :only => [:index, :show]
           resources :config_templates, :only => [:index, :show]
           resources :provisioning_templates, :only => [:index, :show]
           resources :ptables, :only => [:index, :show]

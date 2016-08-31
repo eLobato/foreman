@@ -432,6 +432,10 @@ class User < ActiveRecord::Base
     end
   end
 
+  def all_taxonomies
+    (taxonomies + usergroups.flat_map(&:all_taxonomies)).uniq
+  end
+
   private
 
   def prepare_password

@@ -1,4 +1,8 @@
 class UsergroupMember < ActiveRecord::Base
+  if (SETTINGS[:organizations_enabled] || SETTINGS[:locations_enabled])
+    include UsergroupMemberTaxonomiesUpdater
+  end
+
   belongs_to :member, :polymorphic => true
   belongs_to :usergroup
 

@@ -4,6 +4,7 @@ class Usergroup < ActiveRecord::Base
   extend FriendlyId
   friendly_id :name
   include Parameterizable::ByIdName
+  include Taxonomix
 
   validates_lengths_from_database
   before_destroy EnsureNotUsedBy.new(:hosts), :ensure_last_admin_group_is_not_deleted
@@ -71,6 +72,10 @@ class Usergroup < ActiveRecord::Base
 
   def remove_users(userlist)
     self.users = self.users - User.where(:lower_login => userlist.map(&:downcase))
+  end
+
+  def taxonomy_foreign_conditions
+    { :owner_id => id }
   end
 
   protected
