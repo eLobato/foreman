@@ -23,6 +23,11 @@ begin
         --no-color --out rubocop.xml")
       exit($?.exitstatus)
     end
+
+    task :jest do
+      system('npm run jest')
+      exit($?.exitstatus)
+    end
   end
 rescue LoadError
   # ci/reporter/rake/rspec not present, skipping this definition

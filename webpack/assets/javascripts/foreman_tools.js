@@ -1,3 +1,7 @@
+'use strict';
+
+const $ = require('jquery');
+
 export function showSpinner() {
   $('#turbolinks-progress').show();
 }
