@@ -2,18 +2,16 @@
   <%= base_errors_for @smart_proxy %>
   <ul class="nav nav-tabs" data-tabs="tabs">
     <li class="active"><a href="#primary" data-toggle="tab"><%= _("Smart Proxy") %></a></li>
+    <li><a href="#locations" data-toggle="tab"><%= _("Locations") %></a></li>
+    <li><a href="#organizations" data-toggle="tab"><%= _("Organizations") %></a></li>
+  </li>
   </ul>
   <div class="tab-content">
     <div class="tab-pane active" id="primary">
       <%= text_f(f, :name) %>
       <%= text_f(f, :url, :size => "col-md-8" ) %>
     </div>
-    <%= f.label :organizations, 'Organizations' %>
-    <%= f.collection_select :organization_ids, ActsAsTaggableOn::Tag.includes(:taggings).where(taggings:{context:'organizations'}).uniq(:name).order(:name), :id, :name, {},
-      :multiple => true %>
-    <%= f.label :locations, 'Locations' %>
-    <%= f.collection_select :location_ids, ActsAsTaggableOn::Tag.includes(:taggings).where(taggings:{context:'locations'}).uniq(:name).order(:name), :id, :name, {},
-      :multiple => true %>
+    <%= render 'tags/loc_org_tabs', :f => f, :obj => @smart_proxy %>
     <%= submit_or_cancel f %>
   </div>
 <% end %>
