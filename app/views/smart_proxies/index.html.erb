@@ -29,10 +29,10 @@
           <td class="hidden-sm hidden-xs nbsp ellipsis"><%= proxy.url %></td>
         <% end %>
         <% if SETTINGS[:locations_enabled] %>
-          <td class="hidden-sm hidden-xs nbsp ellipsis"><%= generate_links_for(proxy.locations).html_safe %></td>
+          <td class="hidden-sm hidden-xs nbsp ellipsis"><%= proxy.location_list.to_s %></td>
         <% end %>
         <% if SETTINGS[:organizations_enabled] %>
-          <td class="hidden-sm hidden-xs nbsp ellipsis"><%= generate_links_for(proxy.organizations).html_safe %></td>
+          <td class="hidden-sm hidden-xs nbsp ellipsis"><%= proxy.organization_list.to_s %></td>
         <% end %>
         <td class="ellipsis"><%= proxy.features.to_sentence %></td>
         <td>

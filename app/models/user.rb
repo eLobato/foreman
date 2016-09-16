@@ -10,6 +10,7 @@ class User < ActiveRecord::Base
   include DirtyAssociations
   include UserTime
   audited :except => [:last_login_on, :password, :password_hash, :password_salt, :password_confirmation]
+  acts_as_tagger
 
   ANONYMOUS_ADMIN = 'foreman_admin'
   ANONYMOUS_API_ADMIN = 'foreman_api_admin'
