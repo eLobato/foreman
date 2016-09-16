@@ -1,0 +1,24 @@
+<% title _(controller_name.humanize.titleize) %>
+<% title_actions new_link(new_tag_string),
+                 help_path %>
+
+<table class="<%= table_css_classes %>">
+  <thead>
+    <tr>
+      <th><%= sort :title, :as => s_("Tag|Name") %></th>
+      <th><%= _("Proxies count") %></th>
+      <th><%= _('Actions') %></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% tags.each do |tag| %>
+      <tr class="<%= cycle("even", "odd") %>">
+        <td><%= tag.name %></td>
+        <td><%= SmartProxy.tag_counts_on(controller_name).
+          where(:name => tag.name).count %></td>
+        <td></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+<%= will_paginate_with_info tags %>

@@ -1,0 +1,13 @@
+<div class="tab-pane" id="organizations">
+  <%= f.label :organizations, 'Organizations' %>
+  <%= f.collection_select :organization_ids,
+    tags_context('organizations'),
+    :id, :name, {}, :multiple => true %>
+</div>
+
+<div class="tab-pane" id="locations">
+  <%= f.label :locations, 'Locations' %>
+  <%= f.collection_select :location_ids,
+    tags_context('locations'),
+    :id, :name, {}, :multiple => true %>
+</div>

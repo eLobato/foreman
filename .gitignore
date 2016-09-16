@@ -33,7 +33,7 @@ locale/*/*.po.time_stamp
 locale/*/*.pox
 locale/*/LC_MESSAGES
 coverage/
-tags
+tags/
 _build
 zeus.json
 custom_plan.rb
