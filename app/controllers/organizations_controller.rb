@@ -10,10 +10,12 @@ class OrganizationsController < ApplicationController
   # available organizations when we edit any of the tagged objects
   def create
     @tag = tag_class.new(resource_params)
-    process_error(:render => "tags/new") unless @tag.valid?
-
+    if @tag.save
+      process_success(:object => @tag,
+                      :success_redirect => public_send("#{controller_name}_path"))
     else
-
+      process_error(:render => 'tags/new',
+                    :object => @tag)
     end
   end
 
@@ -21,7 +23,7 @@ class OrganizationsController < ApplicationController
     # This should be protected by roles.
     # e.g: if use cannot see certain tags, don't show them here
     tags = ActsAsTaggableOn::Tag.includes(:taggings).
-      where(taggings: { context: context } ).
+      where(taggings: { context: controller_name } ).
       uniq(:name).order(:name)
 
     render 'tags/index',
@@ -33,11 +35,13 @@ class OrganizationsController < ApplicationController
     render 'tags/new'
   end
 
-  def tag_class
-    controller_name.classify.constantize
+  private
+
+  def resource_params
+    public_send("#{controller_name.singularize}_params".to_sym)
   end
 
-  def context
-    controller_name
+  def tag_class
+    "Tags::#{controller_name.classify}".constantize
   end
 end
