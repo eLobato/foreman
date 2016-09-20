@@ -1,28 +1,19 @@
 module Tags
-  class Organization
-    include ActiveModel::Model
+  class Organization < ActiveRecord::Base
+    self.table_name = 'tags'
 
-    attr_accessor :name
+    validates_lengths_from_database
+    validates :name, :presence => true
 
-    # Save represents creating a Tag, and a Tagging with the tag context,
-    # but no associations.
-    # This allows the Tag to be 'taggable' on the views. Otherwise you
-    # would have to create the tag at the same time it's assigned, via
-    # a text field.
-    def save
-      return false unless valid?
-      tag = ActsAsTaggableOn::Tag.new(:name => name)
-      return false unless tag.save
+    after_save :create_default_tagging
+
+    # Save creates a Tag, but in order for that Tag to be 'selectable'
+    # we need to create a Tagging with the tag context, but no associations.
+    def create_default_tagging
       tagging = ActsAsTaggableOn::Tagging.new(
-        :tag_id => tag.id,
+        :tag_id => id,
         :context => context)
       tagging.save
-    end
-
-    def all
-      ActsAsTaggableOn::Tagging.where(
-        :context => context,
-        :taggable_id => nil)
     end
 
     def context
