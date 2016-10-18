@@ -46,11 +46,34 @@ module Host
     default_scope -> { where(taxonomy_conditions) }
 
     def self.taxonomy_conditions
-      org = Organization.expand(Organization.current) if SETTINGS[:organizations_enabled]
-      loc = Location.expand(Location.current) if SETTINGS[:locations_enabled]
+      return {} if Taxonomy.enabled_taxonomies.empty?
       conditions = {}
-      conditions[:organization_id] = Array(org).map { |o| o.subtree_ids }.flatten.uniq if org.present?
-      conditions[:location_id] = Array(loc).map { |l| l.subtree_ids }.flatten.uniq if loc.present?
+      Taxonomy.enabled_taxonomies.each do |taxonomy|
+        conditions["#{taxonomy.singularize}_id"] = []
+        taxonomy_class = taxonomy.classify.constantize
+        current_taxonomies = taxonomy_class.expand(taxonomy_class.current)
+        if current_taxonomies.present?
+          conditions["#{taxonomy.singularize}_id"] = Array(current_taxonomies).
+            map(&:subtree_ids).flatten.uniq
+        else
+          if User.current.present?
+            # Any 'organizations' situation
+            user_taxonomies = Array(User.current.public_send(taxonomy.to_sym))
+            if user_taxonomies.present?
+              conditions["#{taxonomy.singularize}_id"] = user_taxonomies.
+                map(&:subtree_ids).flatten.uniq
+            end
+            # Show orphaned hosts w/o taxonomies if User is admin
+            if User.current.admin?
+              conditions["#{taxonomy.singularize}_id"] << nil
+            end
+          else
+            # Reports importer, Unattended controller..  do not set a current
+            # user, so we do not filter by taxonomy in that case
+            conditions.delete("#{taxonomy.singularize}_id")
+          end
+        end
+      end
       conditions
     end
 

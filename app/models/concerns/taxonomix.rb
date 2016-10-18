@@ -92,7 +92,11 @@ module Taxonomix
       inner_ids ||= inner_ids_org if inner_ids_org
       # In the case of users we want the taxonomy scope to get both the users of the taxonomy and admins.
       inner_ids.concat(admin_ids) if inner_ids && self == User
-      inner_ids
+      if inner_ids.nil? && User.current.try(:admin?)
+        nil
+      else
+        inner_ids || []
+      end
     end
 
     # taxonomy can be either specific taxonomy object or array of these objects
