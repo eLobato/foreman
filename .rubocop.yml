@@ -29,6 +29,10 @@ Style/HashSyntax:
 Style/FrozenStringLiteralComment:
   Enabled: false
 
+# Both double and single quotes are OK
+Style/StringLiterals:
+  Enabled: false
+
 Metrics/ClassLength:
   Exclude:
     - 'test/**/*'
