@@ -65,7 +65,7 @@ class Api::V2::LocationsControllerTest < ActionController::TestCase
   end
 
   test "should destroy location if hosts do not use it" do
-    assert_difference('Location.count', -1) do
+    assert_difference('Location.unscoped.count', -1) do
       delete :destroy, { :id => taxonomies(:location2).to_param }
     end
     assert_response :success
@@ -86,7 +86,7 @@ class Api::V2::LocationsControllerTest < ActionController::TestCase
 
   test "should dissociate hosts from the destroyed location" do
     host = FactoryGirl.create(:host, :location => taxonomies(:location1))
-    assert_difference('Location.count', -1) do
+    assert_difference('Location.unscoped.count', -1) do
       delete :destroy, { :id => taxonomies(:location1).to_param }
     end
     assert_response :success

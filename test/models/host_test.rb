@@ -178,7 +178,7 @@ class HostTest < ActiveSupport::TestCase
     assert_difference('LookupValue.count') do
       assert Host.create! :name => "abc.mydomain.net", :mac => "aabbecddeeff", :ip => "2.3.4.3",
       :domain => domains(:mydomain), :operatingsystem => operatingsystems(:redhat),
-      :subnet => subnets(:two), :architecture => architectures(:x86_64), :puppet_proxy => smart_proxies(:puppetmaster), :medium => media(:one),
+      :subnet => subnets(:one), :architecture => architectures(:x86_64), :puppet_proxy => smart_proxies(:puppetmaster), :medium => media(:one),
       :environment => environments(:production), :disk => "empty partition",
       :lookup_values_attributes => {"new_123456" => {"lookup_key_id" => lookup_keys(:complex).id, "value"=>"some_value", "match" => "fqdn=abc.mydomain.net"}}
     end
@@ -594,6 +594,7 @@ class HostTest < ActiveSupport::TestCase
     org2 = FactoryGirl.create(:organization)
     org3 = FactoryGirl.create(:organization)
     user = FactoryGirl.create(:user, :organizations => [org1, org2])
+    users(:one).organizations << [org1, org2, org3]
     host1 = FactoryGirl.create(:host, :organization => org1)
     host2 = FactoryGirl.create(:host, :organization => org2)
     host3 = FactoryGirl.create(:host, :organization => org3)

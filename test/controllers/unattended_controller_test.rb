@@ -397,8 +397,11 @@ class UnattendedControllerTest < ActionController::TestCase
   end
 
   test 'should render a template to user with valid filter' do
-    user = FactoryGirl.create(:user, :with_mail, :admin => false)
-    FactoryGirl.create(:filter, :role => user.roles.first, :permissions => Permission.where(:name => 'view_hosts'), :search => "name = #{@rh_host.name}")
+    user = FactoryGirl.create(:user, :with_mail, :admin => false,
+                              :organizations => [@org], :locations => [@loc])
+    FactoryGirl.create(:filter, :role => user.roles.first,
+                       :permissions => Permission.where(:name => 'view_hosts'),
+                       :search => "name = #{@rh_host.name}")
     get :host_template, {:kind => 'PXELinux', :spoof => @rh_host.ip, :format => 'text'}, set_session_user(user)
     assert_response :success
     assert @response.body.include?("linux")
@@ -406,7 +409,9 @@ class UnattendedControllerTest < ActionController::TestCase
 
   test 'should not render a template to user with invalid filter' do
     user = FactoryGirl.create(:user, :with_mail, :admin => false)
-    FactoryGirl.create(:filter, :role => user.roles.first, :permissions => Permission.where(:name => 'view_hosts'), :search => "name = does_not_exist")
+    FactoryGirl.create(:filter, :role => user.roles.first,
+                       :permissions => Permission.where(:name => 'view_hosts'),
+                       :search => "name = does_not_exist")
     get :host_template, {:kind => 'PXELinux', :spoof => @rh_host.ip, :format => 'text'}, set_session_user(user)
     assert_response :not_found
     assert_match /unable to find a host/, @response.body

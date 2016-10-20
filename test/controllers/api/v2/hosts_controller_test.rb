@@ -479,6 +479,7 @@ class Api::V2::HostsControllerTest < ActionController::TestCase
     Setting[:require_ssl_smart_proxies] = false
 
     proxy = smart_proxies(:puppetmaster)
+    proxy.update_attribute(:url, 'https://factsimporter.foreman')
     host = URI.parse(proxy.url).host
     Resolv.any_instance.stubs(:getnames).returns([host])
     hostname = fact_json['name']

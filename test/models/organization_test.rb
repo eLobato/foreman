@@ -49,7 +49,9 @@ class OrganizationTest < ActiveSupport::TestCase
 
   test 'it should return array of used ids by hosts' do
     organization = taxonomies(:organization1)
-    subnet = FactoryGirl.create(:subnet_ipv4, :organizations => [organization])
+    subnet = FactoryGirl.create(:subnet_ipv4,
+                                :organizations => [organization],
+                                :locations => [])
     domain = FactoryGirl.create(:domain)
     FactoryGirl.create(:host,
                        :compute_resource => compute_resources(:one),
@@ -133,14 +135,14 @@ class OrganizationTest < ActiveSupport::TestCase
     assert_equal selected_ids[:compute_resource_ids].sort, compute_resource_ids.sort
     # match to manually generated taxable_taxonomies
     assert_equal selected_ids[:environment_ids], [environments(:production).id]
-    assert_equal selected_ids[:hostgroup_ids], []
-    assert_equal selected_ids[:subnet_ids], [subnets(:one).id]
-    assert_equal selected_ids[:domain_ids], [domains(:mydomain).id]
-    assert_equal selected_ids[:medium_ids], []
-    assert_equal selected_ids[:user_ids], [users(:scoped).id]
+    assert_equal selected_ids[:hostgroup_ids].uniq, [hostgroups(:common).id]
+    assert_equal selected_ids[:subnet_ids].uniq, [subnets(:one).id]
+    assert_equal selected_ids[:domain_ids].sort, [domains(:mydomain).id]
+    assert_equal selected_ids[:medium_ids].uniq, [media(:one).id]
+    assert_equal selected_ids[:user_ids].uniq, [users(:one).id, users(:scoped).id]
     assert_equal selected_ids[:smart_proxy_ids].sort, [smart_proxies(:puppetmaster).id, smart_proxies(:one).id, smart_proxies(:two).id, smart_proxies(:three).id, smart_proxies(:realm).id].sort
     assert_equal selected_ids[:provisioning_template_ids], [templates(:mystring2).id]
-    assert_equal selected_ids[:compute_resource_ids], [compute_resources(:one).id]
+    assert_equal selected_ids[:compute_resource_ids], [compute_resources(:one).id, compute_resources(:mycompute).id]
   end
 
   test 'it should return selected_ids array of ALL values (when types are ignored)' do
@@ -164,7 +166,7 @@ class OrganizationTest < ActiveSupport::TestCase
 
   #Clone
   test "it should clone organization with all associations" do
-    organization = taxonomies(:organization1)
+    organization = FactoryGirl.create(:organization)
     organization_dup = organization.dup
     organization_dup.name = "organization_dup_name"
     assert organization_dup.save!
@@ -197,7 +199,8 @@ class OrganizationTest < ActiveSupport::TestCase
   test ".my_organizations optionally accepts user as argument" do
     expected = Organization.where(:id => users(:one).organization_and_child_ids)
     as_admin do
-      assert_equal expected.sort, Organization.my_organizations(users(:one)).pluck(:id).sort
+      assert_equal expected.pluck(:id).sort,
+        Organization.my_organizations(users(:one)).pluck(:id).sort
     end
   end
 

@@ -15,7 +15,8 @@ class SeedsTest < ActiveSupport::TestCase
 
   def seed
     # Authorisation is disabled usually when run from a rake db:* task
-    User.current = FactoryGirl.build(:user, :admin => true)
+    User.current = FactoryGirl.build(:user, :admin => true,
+                                     :organizations => [], :locations => [])
     load File.expand_path('../../../../db/seeds.rb', __FILE__)
   end
 

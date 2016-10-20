@@ -70,7 +70,8 @@ class TaxonomixTest < ActiveSupport::TestCase
     test 'expands organizations and locations to actual values' do
       org2 = FactoryGirl.create(:organization)
       org3 = FactoryGirl.create(:organization)
-      user = FactoryGirl.create(:user, :organizations => [@org, org2])
+      user = FactoryGirl.create(:user, :organizations => [@org, org2],
+                                :locations => [])
 
       as_user(user) do
         @dummy.class.with_taxonomy_scope(nil, nil)

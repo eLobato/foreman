@@ -126,6 +126,8 @@ class Api::V2::ConfigTemplatesControllerTest < ActionController::TestCase
 
   test "should show template with non-admin user" do
     setup_user('view', 'provisioning_templates')
+    templates(:pxekickstart).organizations = User.current.organizations
+    templates(:pxekickstart).locations = User.current.locations
     get :show, { :id => templates(:pxekickstart).to_param }, set_session_user.merge(:user => User.current.id)
     assert_response :success
   end

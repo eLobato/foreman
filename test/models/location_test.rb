@@ -49,7 +49,8 @@ class LocationTest < ActiveSupport::TestCase
 
   test 'it should return array of used ids by hosts' do
     location = taxonomies(:location1)
-    subnet = FactoryGirl.create(:subnet_ipv4, :locations => [location])
+    subnet = FactoryGirl.create(:subnet_ipv4, :locations => [location],
+                                :organizations => [])
     domain = FactoryGirl.create(:domain)
     FactoryGirl.create(:host,
                        :compute_resource => compute_resources(:one),
@@ -130,14 +131,14 @@ class LocationTest < ActiveSupport::TestCase
     assert_equal selected_ids[:compute_resource_ids].sort, compute_resource_ids.sort
     # match to manually generated taxable_taxonomies
     assert_equal selected_ids[:environment_ids], [environments(:production).id]
-    assert_equal selected_ids[:hostgroup_ids], []
-    assert_equal selected_ids[:subnet_ids], [subnets(:one).id]
+    assert_equal selected_ids[:hostgroup_ids].uniq, [hostgroups(:common).id]
+    assert_equal selected_ids[:subnet_ids].uniq, [subnets(:one).id]
     assert_equal selected_ids[:domain_ids].sort, [domains(:mydomain).id, domains(:yourdomain).id].sort
-    assert_equal selected_ids[:medium_ids], [media(:one).id]
-    assert_equal selected_ids[:user_ids], [users(:scoped).id]
+    assert_equal selected_ids[:medium_ids].uniq, [media(:one).id]
+    assert_equal selected_ids[:user_ids].uniq, [users(:one).id, users(:scoped).id]
     assert_equal selected_ids[:smart_proxy_ids].sort, [smart_proxies(:puppetmaster).id, smart_proxies(:one).id, smart_proxies(:two).id, smart_proxies(:three).id, smart_proxies(:realm).id].sort
     assert_equal selected_ids[:provisioning_template_ids], [templates(:mystring2).id]
-    assert_equal selected_ids[:compute_resource_ids], [compute_resources(:one).id]
+    assert_equal selected_ids[:compute_resource_ids], [compute_resources(:one).id, compute_resources(:mycompute).id]
   end
 
   test 'it should return selected_ids array of ALL values (when types are ignored)' do
@@ -161,7 +162,7 @@ class LocationTest < ActiveSupport::TestCase
 
   #Clone
   test "it should clone location with all associations" do
-    location = taxonomies(:location1)
+    location = FactoryGirl.create(:location)
     location_dup = location.dup
     location_dup.name = "location_dup_name"
     assert location_dup.save!
@@ -196,7 +197,8 @@ class LocationTest < ActiveSupport::TestCase
     parent = taxonomies(:location1)
     location = Location.create :name => "rack1", :parent_id => parent.id
     # check that inherited_ids of location matches selected_ids of parent
-    assert_equal parent.selected_ids, location.inherited_ids
+    assert_equal parent.selected_ids.each { |_,v| v.uniq! },
+      location.inherited_ids
   end
 
   test "selected_or_inherited_ids for inherited location" do
@@ -223,6 +225,7 @@ class LocationTest < ActiveSupport::TestCase
 
     location = Location.create :name => "rack1", :parent_id => parent.id
     FactoryGirl.create(:host,
+                       :hostgroup        => hostgroups(:common),
                        :compute_resource => compute_resources(:one),
                        :domain           => domain1,
                        :environment      => environments(:production),
@@ -235,7 +238,9 @@ class LocationTest < ActiveSupport::TestCase
                        :realm            => realms(:myrealm),
                        :subnet           => subnet)
     FactoryGirl.create(:host,
+                       :compute_resource => compute_resources(:mycompute),
                        :location         => parent,
+                       :owner            => users(:one),
                        :domain           => domain2)
     FactoryGirl.create(:os_default_template,
                        :provisioning_template  => templates(:mystring2),
@@ -259,7 +264,7 @@ class LocationTest < ActiveSupport::TestCase
 
   test "multiple inheritence" do
     parent1 = taxonomies(:location1)
-    assert_equal [subnets(:one).id], parent1.selected_ids["subnet_ids"]
+    assert_equal [subnets(:one).id], parent1.selected_ids["subnet_ids"].uniq
 
     # inherit from parent 1
     parent2 = Location.create :name => "floor1", :parent_id => parent1.id
@@ -366,7 +371,7 @@ class LocationTest < ActiveSupport::TestCase
   test ".my_locations optionally accepts user as argument" do
     expected = Location.where(:id => users(:one).location_and_child_ids)
     as_admin do
-      assert_equal expected.sort, Location.my_locations(users(:one)).pluck(:id).sort
+      assert_equal expected.pluck(:id).sort, Location.my_locations(users(:one)).pluck(:id).sort
     end
   end
 
