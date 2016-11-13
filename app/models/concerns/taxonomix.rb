@@ -78,33 +78,30 @@ module Taxonomix
       # taxonomies. This value should only be returned for admin users.
       return nil if loc.nil? && org.nil? && User.current.try(:admin?)
 
+      inner_ids = []
       if SETTINGS[:locations_enabled] && loc.present?
-        inner_ids_loc = if Location.ignore?(self.to_s)
-                          self.pluck("#{table_name}.id")
-                        else
-                          inner_select(loc, inner_method)
-                        end
+        inner_ids |= if Location.ignore?(self.to_s)
+                       self.pluck("#{table_name}.id")
+                     else
+                       inner_select(loc, inner_method)
+                     end
       end
       if SETTINGS[:organizations_enabled] && org.present?
-        inner_ids_org = if Organization.ignore?(self.to_s)
-                          self.pluck("#{table_name}.id")
-                        else
-                          inner_select(org, inner_method)
-                        end
+        inner_ids |= if Organization.ignore?(self.to_s)
+                       self.pluck("#{table_name}.id")
+                     else
+                       inner_select(org, inner_method)
+                     end
       end
-      inner_ids = inner_ids_loc & inner_ids_org if (inner_ids_loc && inner_ids_org)
-      inner_ids ||= inner_ids_loc if inner_ids_loc
-      inner_ids ||= inner_ids_org if inner_ids_org
 
       if self == User
         # In the case of users we want the taxonomy scope to get both the users
         # of the taxonomy, admins, and the current user.
-        inner_ids ||= []
-        inner_ids.concat(admin_ids)
-        inner_ids << User.current.id if User.current.present?
+        inner_ids |= admin_ids
+        inner_ids |= [User.current.id] if User.current.present?
       end
 
-      inner_ids
+      inner_ids.compact
     end
 
     # taxonomy can be either specific taxonomy object or array of these objects
