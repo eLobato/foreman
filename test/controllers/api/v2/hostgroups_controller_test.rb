@@ -79,7 +79,7 @@ class Api::V2::HostgroupsControllerTest < ActionController::TestCase
   test "should update a hostgroup to nested by passing parent_id" do
     put :update, { :id => hostgroups(:db).to_param, :hostgroup => {:parent_id => hostgroups(:common).id} }
     assert_response :success
-    assert_equal hostgroups(:common).id.to_s, Hostgroup.find_by_name("db").ancestry
+    assert_equal hostgroups(:common).id.to_s, Hostgroup.unscoped.find_by_name("db").ancestry
   end
 
   test "user without view_params permission can't see hostgroup parameters" do

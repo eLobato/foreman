@@ -27,8 +27,8 @@ class Api::V2::RealmsControllerTest < ActionController::TestCase
   end
 
   test "should update valid realm" do
-    put :update, { :id => Realm.first.to_param, :realm => { :name => "realm.new" } }
-    assert_equal "realm.new", Realm.first.name
+    put :update, { :id => Realm.unscoped.first.to_param, :realm => { :name => "realm.new" } }
+    assert_equal "realm.new", Realm.unscoped.first.name
     assert_response :success
   end
 
@@ -68,10 +68,11 @@ class Api::V2::RealmsControllerTest < ActionController::TestCase
   end
 
   test "should get realms for both location and organization" do
-    get :index, {:location_id => taxonomies(:location1).id, :organization_id => taxonomies(:organization1).id }
+    target_realms = taxonomies(:location1).realms | taxonomies(:organization1).realms
+    get :index, { :location_id => taxonomies(:location1).id, :organization_id => taxonomies(:organization1).id }
     assert_response :success
-    assert_equal 1, assigns(:realms).length
-    assert_equal assigns(:realms), [realms(:myrealm)]
+    assert_equal target_realms.length, assigns(:realms).length
+    assert_equal target_realms.sort, assigns(:realms).sort
   end
 
   test "should show realm with correct child nodes including location and organization" do

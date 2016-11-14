@@ -175,16 +175,17 @@ class TaxonomixTest < ActiveSupport::TestCase
     loc4 = FactoryGirl.create(:location)
     org = FactoryGirl.create(:organization)
     env1 = FactoryGirl.create(:environment, :organizations => [org], :locations => [loc2])
-    env2 = FactoryGirl.create(:environment, :organizations => [org])
-    env3 = FactoryGirl.create(:environment, :locations => [loc2])
-    env4 = FactoryGirl.create(:environment, :locations => [loc4])
-    env5 = FactoryGirl.create(:environment, :locations => [loc1])
-    env6 = FactoryGirl.create(:environment, :locations => [loc3])
+    env2 = FactoryGirl.create(:environment, :organizations => [org], :locations => [])
+    env3 = FactoryGirl.create(:environment, :locations => [loc2], :organizations => [])
+    env4 = FactoryGirl.create(:environment, :locations => [loc4], :organizations => [])
+    env5 = FactoryGirl.create(:environment, :locations => [loc1], :organizations => [])
+    env6 = FactoryGirl.create(:environment, :locations => [loc3], :organizations => [])
 
     taxable_ids = Environment.taxable_ids([loc2, loc4], org, :subtree_ids)
     visible = [ env1 ]
     invisible = [ env2, env3, env4, env5, env6 ]
     visible.each { |env| assert_includes taxable_ids, env.id }
+    binding.pry
     invisible.each { |env| refute_includes taxable_ids, env.id }
 
     taxable_ids = Environment.taxable_ids([], org, :subtree_ids)

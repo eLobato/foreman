@@ -99,7 +99,8 @@ class Api::V2::LocationsControllerTest < ActionController::TestCase
     as_admin do
       @location.save(:validate => false)
       assert_difference('@location.domains.count', 2) do
-        put :update, { :id => @location.to_param, :location => { :domain_ids => Domain.pluck(:id) } }
+        put :update, { :id => @location.to_param, :location => { :domain_ids => Domain.unscoped.pluck(:id) } }
+        User.current = users(:admin)
       end
     end
     assert_response :success

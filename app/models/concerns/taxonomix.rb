@@ -76,8 +76,9 @@ module Taxonomix
     def taxable_ids(loc = which_location, org = which_organization, inner_method = which_ancestry_method)
       # Return everything (represented by nil), including objects without
       # taxonomies. This value should only be returned for admin users.
-      return nil if loc.nil? && org.nil? && User.current.try(:admin?)
+      return nil if loc.blank? && org.blank? && User.current.try(:admin?)
 
+      binding.pry
       inner_ids = []
       if SETTINGS[:locations_enabled] && loc.present?
         inner_ids |= if Location.ignore?(self.to_s)

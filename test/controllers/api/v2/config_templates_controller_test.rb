@@ -58,14 +58,14 @@ class Api::V2::ConfigTemplatesControllerTest < ActionController::TestCase
   test "should not update invalid" do
     put :update, { :id              => templates(:pxekickstart).to_param,
                    :config_template => { :name => "" } }
-    assert_response 422
+    assert_response :unprocessable_entity
   end
 
   test "should not destroy template with associated hosts" do
     config_template = templates(:pxekickstart)
     delete :destroy, { :id => config_template.to_param }
-    assert_response 422
-    assert ProvisioningTemplate.exists?(config_template.id)
+    assert_response :unprocessable_entity
+    assert ProvisioningTemplate.unscoped.exists?(config_template.id)
   end
 
   test "should destroy" do
@@ -73,7 +73,7 @@ class Api::V2::ConfigTemplatesControllerTest < ActionController::TestCase
     config_template.os_default_templates.clear
     delete :destroy, { :id => config_template.to_param }
     assert_response :ok
-    refute ProvisioningTemplate.exists?(config_template.id)
+    refute ProvisioningTemplate.unscoped.exists?(config_template.id)
   end
 
   test "should build pxe menu" do

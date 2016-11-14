@@ -27,13 +27,13 @@ class Api::V2::DomainsControllerTest < ActionController::TestCase
   end
 
   test "should update valid domain" do
-    put :update, { :id => Domain.first.to_param, :domain => { :name => "domain.new" } }
-    assert_equal "domain.new", Domain.first.name
+    put :update, { :id => Domain.unscoped.first.to_param, :domain => { :name => "domain.new" } }
+    assert_equal "domain.new", Domain.unscoped.first.name
     assert_response :success
   end
 
   test "should not update invalid domain" do
-    put :update, { :id => Domain.first.to_param, :domain => { :name => "" } }
+    put :update, { :id => Domain.unscoped.first.to_param, :domain => { :name => "" } }
     assert_response :unprocessable_entity
   end
 
@@ -69,10 +69,11 @@ class Api::V2::DomainsControllerTest < ActionController::TestCase
   end
 
   test "should get domains for both location and organization" do
+    target_domains = taxonomies(:location1).domains | taxonomies(:organization1).domains
     get :index, {:location_id => taxonomies(:location1).id, :organization_id => taxonomies(:organization1).id }
     assert_response :success
-    assert_equal 1, assigns(:domains).length
-    assert_equal assigns(:domains), [domains(:mydomain)]
+    assert_equal target_domains.length, assigns(:domains).length
+    assert_equal target_domains.sort, assigns(:domains).sort
   end
 
   test "should show domain with correct child nodes including location and organization" do

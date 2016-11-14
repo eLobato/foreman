@@ -225,12 +225,17 @@ class Api::V2::HostsControllerTest < ActionController::TestCase
     disable_orchestration
 
     compute_attrs = compute_attributes(:with_interfaces)
-    post :create, { :host => basic_attrs_with_profile(compute_attrs).merge(:interfaces_attributes =>  nics_attrs) }
+    post :create, { :host => basic_attrs_with_profile(compute_attrs).
+                    merge(:interfaces_attributes => nics_attrs) }
     assert_response :created
 
-    assert_equal compute_attrs.vm_interfaces.count, last_record.interfaces.count
-    assert_equal expected_compute_attributes(compute_attrs, 0), last_record.interfaces.find_by_mac('00:11:22:33:44:00').compute_attributes
-    assert_equal expected_compute_attributes(compute_attrs, 1), last_record.interfaces.find_by_mac('00:11:22:33:44:01').compute_attributes
+    as_admin do
+      assert_equal compute_attrs.vm_interfaces.count, last_record.interfaces.count
+      assert_equal expected_compute_attributes(compute_attrs, 0),
+        last_record.interfaces.find_by_mac('00:11:22:33:44:00').compute_attributes
+      assert_equal expected_compute_attributes(compute_attrs, 1),
+        last_record.interfaces.find_by_mac('00:11:22:33:44:01').compute_attributes
+    end
   end
 
   test "should create host with managed is false if parameter is passed" do
@@ -268,9 +273,13 @@ class Api::V2::HostsControllerTest < ActionController::TestCase
     assert_response :success
 
     @host.interfaces.reload
-    assert_equal compute_attrs.vm_interfaces.count, @host.interfaces.count
-    assert_equal expected_compute_attributes(compute_attrs, 0), @host.interfaces.find_by_primary(true).compute_attributes
-    assert_equal expected_compute_attributes(compute_attrs, 1), @host.interfaces.find_by_primary(false).compute_attributes
+    as_admin do
+      assert_equal compute_attrs.vm_interfaces.count, @host.interfaces.count
+      assert_equal expected_compute_attributes(compute_attrs, 0),
+        @host.interfaces.find_by_primary(true).compute_attributes
+      assert_equal expected_compute_attributes(compute_attrs, 1),
+        @host.interfaces.find_by_primary(false).compute_attributes
+    end
   end
 
   test "should update host without :host root node and rails wraps it correctly" do
