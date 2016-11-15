@@ -463,7 +463,7 @@ class Host::Managed < Host::Base
   end
 
   def attributes_to_import_from_facts
-    super + [:domain, :architecture, :operatingsystem]
+    super + [:architecture, :operatingsystem]
   end
 
   def populate_fields_from_facts(facts = self.facts_hash, type = 'puppet')
@@ -905,8 +905,11 @@ class Host::Managed < Host::Base
       lookup = dns_record(:ptr4).dns_lookup(name_or_ip)
       return lookup.ip unless lookup.nil?
     end
+
     # fall back to normal dns resolution
-    domain.resolver.getaddress(name_or_ip).to_s
+    return domain.resolver.getaddress(name_or_ip).to_s if domain.present?
+    # If there is no domain available, just check if Foreman itself can resolve it
+    Resolv::DNS.new.getaddress(name_or_ip).to_s
   rescue => e
     logger.warn "Unable to find IP address for '#{name_or_ip}': #{e}"
     raise ::Foreman::WrappedException.new(e, N_("Unable to find IP address for '%s'"), name_or_ip)

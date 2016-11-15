@@ -29,8 +29,6 @@ module Nic
 
     validate :exclusive_primary_interface
     validate :exclusive_provision_interface
-    validates :domain, :presence => true, :if => Proc.new { |nic| nic.host_managed? && nic.primary? }
-    validate :valid_domain, :if => Proc.new { |nic| nic.host_managed? && nic.primary? }
     validates :ip, :presence => true, :if => Proc.new { |nic| nic.host_managed? && nic.require_ip4_validation? }
     validates :ip6, :presence => true, :if => Proc.new { |nic| nic.host_managed? && nic.require_ip6_validation? }
 
@@ -185,12 +183,6 @@ module Nic
       true
     rescue Net::Validations::Error => e
       self.errors.add(:mac, e.message)
-    end
-
-    def valid_domain
-      unless Domain.find_by_id(domain_id)
-        self.errors.add(:domain_id, _("can't find domain with this id"))
-      end
     end
 
     def set_validated
