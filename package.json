@@ -43,7 +43,7 @@
     "events": "^1.1.1",
     "flux": "^2.1.1",
     "ipaddr.js": "~1.2.0",
-    "jquery": "~1.11.0",
+    "jquery": "~1.12.0",
     "jquery-flot": "~0.8.3",
     "jquery-ujs": "~1.2.0",
     "jquery.cookie": "~1.4.1",
@@ -63,8 +63,13 @@
     "automock": true,
     "verbose": true,
     "collectCoverage": true,
-    "collectCoverageFrom": ["webpack/**/*.js", "!webpack/**/bundle*"],
-    "coverageReporters": ["lcov"],
+    "collectCoverageFrom": [
+      "webpack/**/*.js",
+      "!webpack/**/bundle*"
+    ],
+    "coverageReporters": [
+      "lcov"
+    ],
     "unmockedModulePathPatterns": [
       "react",
       "node_modules/"
