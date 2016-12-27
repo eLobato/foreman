@@ -1,8 +1,8 @@
 import React from 'react';
 import StatisticsChartsList from '../components/charts/StatisticsChartsList';
 import PowerStatusContainer from '../components/hosts/PowerStatusContainer';
-import DrawerIcon from '../components/notifications/DrawerIcon';
-import DrawerBox from '../components/notifications/DrawerBox';
+import NotificationDrawerToggle from '../components/notifications/NotificationDrawerToggle';
+import NotificationDrawer from '../components/notifications/NotificationDrawer';
 import ReactDOM from 'react-dom';
 
 export function mount(component, selector, data) {
@@ -16,13 +16,13 @@ export function mount(component, selector, data) {
       type: PowerStatusContainer,
       markup: <PowerStatusContainer url={data.url} id={data.id}/>
     },
-    DrawerIcon: {
-      type: DrawerIcon,
-      markup: <DrawerIcon url={data.url}/>
+    NotificationDrawerToggle: {
+      type: NotificationDrawerToggle,
+      markup: <NotificationDrawerToggle url={data.url}/>
     },
-    DrawerBox: {
-      type: DrawerBox,
-      markup: <DrawerBox data={data} />
+    NotificationDrawer: {
+      type: NotificationDrawer,
+      markup: <NotificationDrawer data={data} />
     }
   };
 

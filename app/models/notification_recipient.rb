@@ -14,6 +14,7 @@ class NotificationRecipient < ActiveRecord::Base
       :level      => notification_type.level,
       :created_at => notification.created_at,
       :text       => notification_type.message,
+      :group      => notification_type.name,
       :seen       => seen
     }
   end

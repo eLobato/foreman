@@ -37,7 +37,7 @@ export default {
  receivedNotifications(response, textStatus, jqXHR) {
     AppDispatcher.dispatch({
       actionType: ACTIONS.RECEIVED_NOTIFICATIONS,
-      response
+      notifications: response.notifications
     });
   },
 
@@ -50,5 +50,4 @@ export default {
       }
     });
   }
-
 };

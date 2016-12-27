@@ -319,3 +319,8 @@ a.btn-info span{
 .pficon-ok.warn:before {
   color: #ec7a08;
 }
+
+// gridster on dashboard conflicts with notifications drawer
+.gridster .gs-w {
+  z-index: auto !important;
+}
