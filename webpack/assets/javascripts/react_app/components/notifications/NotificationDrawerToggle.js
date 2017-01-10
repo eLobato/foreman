@@ -26,7 +26,7 @@ class NotificationDrawerToggle extends Component {
         });
         break;
       }
-      case ACTIONS.NOTIFICATOINS_DRAWER_TOGGLE: {
+      case ACTIONS.NOTIFICATIONS_DRAWER_TOGGLE: {
         this.setState({
           drawerOpen: NotificationsStore.getIsDrawerOpen()
         });

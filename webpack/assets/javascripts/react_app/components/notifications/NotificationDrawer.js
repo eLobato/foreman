@@ -23,7 +23,7 @@ class NotificationDrawer extends Component {
         this.setState({ notifications: NotificationsStore.getNotifications() });
         break;
       }
-      case ACTIONS.NOTIFICATOINS_DRAWER_TOGGLE: {
+      case ACTIONS.NOTIFICATIONS_DRAWER_TOGGLE: {
         const isOpen = NotificationsStore.getIsDrawerOpen();
 
         this.setState({
@@ -42,7 +42,7 @@ class NotificationDrawer extends Component {
 
     return (
       <div className={'drawer-pf drawer-pf-notifications-non-clickable' + toggleClass}>
-        <NotificationDrawerTitle text="Notifications Drawer" />
+        <NotificationDrawerTitle text="Notifications" />
         <NotificationAccordion notifications={this.state.notifications} />
       </div>
     );

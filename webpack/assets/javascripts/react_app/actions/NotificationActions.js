@@ -15,7 +15,7 @@ export default {
   },
   toggleNotificationDrawer() {
     AppDispatcher.dispatch({
-      actionType: ACTIONS.NOTIFICATOINS_DRAWER_TOGGLE
+      actionType: ACTIONS.NOTIFICATIONS_DRAWER_TOGGLE
     });
   },
   expandDrawerTab(group) {

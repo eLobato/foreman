@@ -66,7 +66,7 @@ AppDispatcher.register(action => {
       break;
     }
 
-    case ACTIONS.NOTIFICATOINS_DRAWER_TOGGLE: {
+    case ACTIONS.NOTIFICATIONS_DRAWER_TOGGLE: {
       const value = NotificationsStore.getIsDrawerOpen();
 
       window.sessionStorage.setItem('isDrawerOpen', JSON.stringify(!value));
