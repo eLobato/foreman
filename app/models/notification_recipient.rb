@@ -16,6 +16,12 @@ class NotificationRecipient < ActiveRecord::Base
       :text       => notification_blueprint.message,
       :subject    => notification_blueprint.subject,
       :created_at => notification.created_at,
+      :group      => notification_blueprint.group,
     }
+  end
+
+  def current_user?
+    return true unless SETTINGS[:login]
+    User.current.id == user_id
   end
 end

@@ -17,12 +17,11 @@ class NotificationRecipientsController < Api::V2::BaseController
   end
 
   def update
-    # only allowed attribute to change is 'seen'
-    process_response @user_notification.update_attribute(:seen, params[:user_notification][:seen])
+    process_response @notification_recipient.update_attributes(notification_recipient_params)
   end
 
   def destroy
-    process_response @user_notification.destroy
+    process_response @notification_recipient.destroy
   end
 
   private
@@ -31,9 +30,8 @@ class NotificationRecipientsController < Api::V2::BaseController
     not_found unless SETTINGS[:login]
   end
 
-  # TODO - find a way to call find_resource and provide the current user_id
   def find_resource
-    @user_notification = NotificationRecipient.where(:user_id => User.current.id, :id => params[:id]).first
-    @user_notification || not_found
+    super
+    @notification_recipient.current_user? || not_found
   end
 end

@@ -1,4 +1,4 @@
-<div class="navbar navbar-default navbar-outer">
+<div class="navbar navbar-default navbar-outer navbar-pf">
   <div class="navbar-header">
     <div class="container">
       <div class="navbar-brand">
@@ -12,6 +12,10 @@
             <%= render_menu :header_menu %>
             <%= render 'home/user_dropdown' if SETTINGS[:login] %>
           </ul>
+          <% if SETTINGS[:login] %>
+            <div id='notification_drawer'> </div>
+            <%= mount_react_component('NotificationDrawer', '#notification_drawer', {}) %>
+          <% end %>
         </div>
       <% end %>
     </div>
