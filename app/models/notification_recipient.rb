@@ -1,7 +1,7 @@
 class NotificationRecipient < ActiveRecord::Base
   belongs_to :notification
-  has_one :notification_type, :through => :notification
   belongs_to :user
+  has_one :notification_blueprint, :through => :notification
 
   validates :notification, :presence => true
   validates :user, :presence => true
@@ -11,11 +11,17 @@ class NotificationRecipient < ActiveRecord::Base
   def payload
     {
       :id         => id,
-      :level      => notification_type.level,
+      :seen       => seen,
+      :level      => notification_blueprint.level,
+      :text       => notification_blueprint.message,
+      :subject    => notification_blueprint.subject,
       :created_at => notification.created_at,
-      :text       => notification_type.message,
-      :group      => notification_type.name,
-      :seen       => seen
+      :group      => notification_blueprint.group,
     }
+  end
+
+  def current_user?
+    return true unless SETTINGS[:login]
+    User.current.id == user_id
   end
 end
