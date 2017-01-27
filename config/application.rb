@@ -168,6 +168,9 @@ module Foreman
     # New config option to opt out of params "deep munging" that was used to address security vulnerability CVE-2013-0155.
     config.action_dispatch.perform_deep_munge = false
 
+    # Use delayed_job_active_record as the backend for ActiveJob notifications
+    config.active_job.queue_adapter = :delayed_job
+
     Foreman::Logging.configure(
       :log_directory => "#{Rails.root}/log",
       :environment => Rails.env,
