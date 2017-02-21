@@ -5,6 +5,7 @@ module Foreman
   # Class for configuring and preparing the Dynflow runtime environment.
   class Dynflow
     require File.expand_path('../dynflow/configuration', __FILE__)
+    require File.expand_path('../dynflow/persistence', __FILE__)
     require File.expand_path('../dynflow/daemon', __FILE__)
 
     def initialize

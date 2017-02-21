@@ -146,7 +146,7 @@ module Foreman
 
     # Sequel adapter based on Rails app database.yml configuration
     def initialize_persistence
-      ::Dynflow::PersistenceAdapters::Sequel.new(default_sequel_adapter_options)
+      Dynflow::Persistence.new(default_sequel_adapter_options)
     end
   end
 end

@@ -227,6 +227,7 @@ module Foreman
     end
 
     def dynflow
+      return @dynflow if @dynflow.present?
       if defined?(ForemanTasks)
         @dynflow ||= ForemanTasks.dynflow
       else
