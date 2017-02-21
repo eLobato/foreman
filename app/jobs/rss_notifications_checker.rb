@@ -11,7 +11,12 @@ class RssNotificationsChecker < ApplicationJob
   end
 
   def perform(options = {})
-    @url = options[:url]
+    @url = options[:url] || 'https://theforeman.org/feed.xml'.freeze
+    @group = options[:group] || _('Community')
+    @latest_posts = options[:latest_posts] || 3
+    @expiration_date = options[:expiration_date] || 1.week
+    @force_repost = options[:force_repost] || false
+    @audience = options[:audience] || Notification::AUDIENCE_GLOBAL
     create_notifications
   end
 

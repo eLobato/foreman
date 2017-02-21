@@ -39,6 +39,7 @@ gem 'webpack-rails', '~> 0.9.8'
 gem 'mail', '~> 2.6'
 gem 'delayed_job_active_record', '~> 4.1'
 gem 'nokogiri', '< 1.7' if RUBY_VERSION.start_with? '2.0.'
+gem 'dynflow', :path => '../dynflow/'
 
 Dir["#{File.dirname(FOREMAN_GEMFILE)}/bundler.d/*.rb"].each do |bundle|
   self.instance_eval(Bundler.read_file(bundle))

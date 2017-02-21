@@ -57,6 +57,7 @@ require File.expand_path('../../lib/core_extensions', __FILE__)
 require File.expand_path('../../lib/foreman/logging', __FILE__)
 require File.expand_path('../../lib/middleware/catch_json_parse_errors', __FILE__)
 require File.expand_path('../../lib/middleware/tagged_logging', __FILE__)
+require File.expand_path('../../lib/foreman/dynflow', __FILE__)
 
 if SETTINGS[:support_jsonp]
   if File.exist?(File.expand_path('../../Gemfile.in', __FILE__))
@@ -169,7 +170,7 @@ module Foreman
     config.action_dispatch.perform_deep_munge = false
 
     # Use delayed_job_active_record as the backend for ActiveJob notifications
-    config.active_job.queue_adapter = :delayed_job
+    config.active_job.queue_adapter = :dynflow
 
     Foreman::Logging.configure(
       :log_directory => "#{Rails.root}/log",
@@ -219,8 +220,21 @@ module Foreman
     config.session_store :active_record_store, :secure => !!SETTINGS[:require_ssl]
   end
 
-  def self.setup_console
-    ENV['IRBRC'] = File.expand_path('../irbrc', __FILE__)
-    puts "For some operations a user must be set, try User.current = User.first"
+  class << self
+    def setup_console
+      ENV['IRBRC'] = File.expand_path('../irbrc', __FILE__)
+      puts "For some operations a user must be set, try User.current = User.first"
+    end
+
+    def dynflow
+      if defined?(ForemanTasks)
+        @dynflow ||= ForemanTasks.dynflow
+      else
+        @dynflow ||= Foreman::Dynflow.new
+        @dynflow.require!
+        @dynflow.initialize!
+        @dynflow
+      end
+    end
   end
 end

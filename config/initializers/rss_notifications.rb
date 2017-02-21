@@ -8,6 +8,7 @@ Delayed::Job.where(:queue => 'notifications').each do |notification_job|
   end
 end
 
+options = {}
 options[:url] = 'https://theforeman.org/feed.xml'.freeze
 options[:group] = _('Community')
 options[:latest_posts] = 3
