@@ -10,7 +10,7 @@ module Foreman
       unless File.exist?(foreman_env_file)
         raise "#{foreman_root} doesn't seem to be a foreman root directory"
       end
-      Foreman.dynflow.executor!
+      Rails.application.dynflow.executor!
       require foreman_env_file
       STDERR.puts('Everything ready')
       sleep
@@ -65,7 +65,7 @@ module Foreman
     protected
 
     def world
-      Foreman.dynflow.world
+      Rails.application.dynflow.world
     end
   end
 end

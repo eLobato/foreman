@@ -68,7 +68,7 @@ module Foreman
     # No matter what config.remote says, when the process is marked as executor,
     # it can't be remote
     def remote?
-      !Foreman.dynflow.executor? &&
+      !Rails.application.dynflow.executor? &&
         !rake_task_with_executor? &&
         @remote
     end

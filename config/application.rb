@@ -218,13 +218,6 @@ module Foreman
 
     # Use the database for sessions instead of the cookie-based default
     config.session_store :active_record_store, :secure => !!SETTINGS[:require_ssl]
-  end
-
-  class << self
-    def setup_console
-      ENV['IRBRC'] = File.expand_path('../irbrc', __FILE__)
-      puts "For some operations a user must be set, try User.current = User.first"
-    end
 
     def dynflow
       return @dynflow if @dynflow.present?
@@ -237,5 +230,10 @@ module Foreman
         @dynflow
       end
     end
+  end
+
+  def self.setup_console
+    ENV['IRBRC'] = File.expand_path('../irbrc', __FILE__)
+    puts "For some operations a user must be set, try User.current = User.first"
   end
 end

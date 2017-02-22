@@ -70,7 +70,7 @@ module Foreman
       initialize! if config.lazy_initialization
       unless @world
         raise 'The Dynflow world was not initialized yet. '\
-              'If your plugin uses it, make sure to call Foreman.dynflow.require! '\
+          'If your plugin uses it, make sure to call Rails.application.dynflow.require! '\
               'in some initializer'
       end
 
