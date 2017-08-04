@@ -1,6 +1,7 @@
 /* eslint-disable no-var*/
 'use strict';
 
+var glob = require('glob');
 var path = require('path');
 var webpack = require('webpack');
 var StatsWriterPlugin = require("webpack-stats-plugin").StatsWriterPlugin;
@@ -50,8 +51,8 @@ var config = {
   resolve: {
     modules: [
       path.join(__dirname, '..', 'webpack'),
-      path.join(__dirname, '..', 'node_modules')
-    ],
+      path.join(__dirname, '..', 'node_modules/'),
+    ].concat(glob.sync(path.join(__dirname, '..', "node_modules/*/node_modules"))),
     alias: {
       foremanReact:
         path.join(__dirname,
