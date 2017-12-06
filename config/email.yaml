@@ -1,0 +1,6 @@
+# Outgoing email settings
+
+production:
+  delivery_method: :sendmail
+development:
+  delivery_method: :sendmail

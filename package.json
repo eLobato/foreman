@@ -51,6 +51,7 @@
     "phantomjs-prebuilt": "^2.1.0"
   },
   "dependencies": {
+    "actioncable": "^5.1.4",
     "babel-polyfill": "^6.26.0",
     "brace": "^0.10.0",
     "c3": "^0.4.11",

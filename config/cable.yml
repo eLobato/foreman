@@ -1,0 +1,15 @@
+development:
+  adapter: async
+
+test:
+  adapter: async
+
+production:
+  adapter: postgresql
+  database: katello
+  username: katello
+  password: katello
+  host: localhost
+  encoding: UTF8
+  template: template0
+

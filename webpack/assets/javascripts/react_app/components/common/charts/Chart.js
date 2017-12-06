@@ -1,7 +1,7 @@
 import c3 from 'c3';
 import PropTypes from 'prop-types';
 import React from 'react';
-
+import Cable from 'actioncable'
 import MessageBox from '../MessageBox';
 
 class Chart extends React.Component {
@@ -36,6 +36,22 @@ class Chart extends React.Component {
     if (this.chart) {
       this.chart = this.chart.destroy();
     }
+  }
+
+  componentWillMount() {
+    this.createSocket();
+  }
+
+  createSocket() {
+    let cable = Cable.createConsumer('wss://centos7-devel.lobatolan.home/cable');
+    this.chats = cable.subscriptions.create('JobInvocationChannel', {
+      connected: () => {
+        console.log("Connected to JobInvocationChannel");
+      },
+      received: (data) => {
+        console.log(data);
+      },
+    });
   }
 
   render() {

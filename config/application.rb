@@ -207,6 +207,14 @@ module Foreman
     # Explicitly set the log_level from our config, overriding the Rails env default
     config.log_level = Foreman::Logging.logger_level('app').to_sym
     config.active_record.logger = Foreman::Logging.logger('sql')
+    config.action_cable.mount_path = '/cable'
+    config.action_cable.disable_request_forgery_protection = true
+    config.action_cable.log_tags = [
+      -> request { request.env['user_id'] || "no-account" },
+      :action_cable,
+      -> request { request.uuid }
+    ]
+
 
     if config.public_file_server.enabled
       ::Rails::Engine.subclasses.map(&:instance).each do |engine|

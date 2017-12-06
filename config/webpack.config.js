@@ -142,6 +142,7 @@ if (production) {
   config.devServer = {
     host: process.env.BIND || 'localhost',
     port: devServerPort,
+    disableHostCheck: true,
     headers: { 'Access-Control-Allow-Origin': '*' },
     hot: true
   };

@@ -1,4 +1,6 @@
 Foreman::Application.routes.draw do
+  mount ActionCable.server => '/cable'
+
   resources :mail_notifications, :only => [] do
     collection do
       get 'auto_complete_search'
