@@ -70,7 +70,7 @@
     "jquery-ujs": "~1.2.0",
     "jquery.cookie": "~1.4.1",
     "jstz": "~1.0.7",
-    "lodash": "~4.15.0",
+    "lodash": "~4.17.5",
     "multiselect": "~0.9.12",
     "patternfly": "^3.31.2",
     "patternfly-react": "^1.5.0",
