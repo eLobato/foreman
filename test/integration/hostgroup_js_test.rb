@@ -3,6 +3,7 @@ require 'integration_test_helper'
 class HostgroupJSTest < IntegrationTestWithJavascript
   # intermittent failures:
   #   HostgroupJSTest.test_0001_submit updates taxonomy
+  #   HostgroupJSTest.test_0001_creates a hostgroup with provisioning data
   extend Minitest::OptionalRetry
 
   test 'creates a hostgroup with provisioning data' do
