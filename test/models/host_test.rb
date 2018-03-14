@@ -3597,7 +3597,9 @@ class HostTest < ActiveSupport::TestCase
     host = FactoryBot.create(:host, :hostgroup => FactoryBot.create(:hostgroup))
     hash = { (nic_attributes.delete(:identifier) || :eth0) => nic_attributes
     }.with_indifferent_access
-    parser = stub(:interfaces => hash, :ipmi_interface => {}, :suggested_primary_interface => hash.to_a.first)
+    parser = stub(:interfaces => hash,
+                  :ipmi_interface => {},
+                  :suggested_primary_interface => hash.to_a.first)
     [host, parser]
   end
 
@@ -3605,7 +3607,12 @@ class HostTest < ActiveSupport::TestCase
     host = FactoryBot.create(:host, :hostgroup => FactoryBot.create(:hostgroup))
     hash = ipmi_attributes.with_indifferent_access
     primary = host.primary_interface
-    parser = stub(:ipmi_interface => hash, :interfaces => {}, :suggested_primary_interface => [ primary.identifier, {:macaddress => primary.mac, :ipaddress => primary.ip} ])
+    parser = stub(:ipmi_interface => hash,
+                  :interfaces => {},
+                  :suggested_primary_interface => [
+                    primary.identifier,
+                    { :macaddress => primary.mac, :ipaddress => primary.ip }
+                  ])
     [host, parser]
   end
 
