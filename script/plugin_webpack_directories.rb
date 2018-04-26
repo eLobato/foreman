@@ -17,7 +17,7 @@ specs.each do |dep|
   # skip other rails engines that are not plugins
   # TODO: Consider using the plugin registration api?
   if gemfile_in
-    next unless dep.name =~ plugin_name_regexp
+    next unless dep.to_s =~ plugin_name_regexp
     dep = dep.to_spec
   else
     next unless dep.name =~ plugin_name_regexp
@@ -27,16 +27,8 @@ specs.each do |dep|
   # some plugins share the same base directory (tasks-core and tasks, REX etc)
   # skip the plugin if its path is already included
   next if config[:paths].include?(path)
-  if Dir.exist?(path) && !dep.files.any? { |f| /webpack/ =~ f }
-    STDERR.puts "WARNING: webpack was found in #{dep.name}'s source, "\
-      "but it's not in the gemspec. Please add it to the gemspec."
-  end
-  if File.exist?("#{dep.to_spec.full_gem_path}/package.json") &&
-      !dep.files.include?('package.json')
-    STDERR.puts "WARNING: package.json was found in #{dep.name}'s source, "\
-      "but it's not in the gemspec. Please add it to the gemspec."
-  end
-  next unless dep.files.include? 'package.json'
+  next unless Dir.exist?(path)
+  next unless File.exist?("#{dep.to_spec.full_gem_path}/package.json")
   package_json = JSON.parse(File.read("#{dep.to_spec.full_gem_path}/package.json"))
   main = package_json['main'] || 'index.js'
   entry = "#{path}/#{main}"
