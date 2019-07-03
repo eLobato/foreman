@@ -93,7 +93,8 @@
     "seamless-immutable": "^7.1.2",
     "select2": "~3.5.2-browserify",
     "urijs": "^1.18.10",
-    "uuid": "^3.0.1"
+    "uuid": "^3.0.1",
+    "snyk": "^1.189.0"
   },
   "scripts": {
     "lint": "./node_modules/.bin/eslint -c .eslintrc webpack/ script/ || exit 0",
@@ -105,7 +106,9 @@
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
     "deploy-storybook": "storybook-to-ghpages",
-    "postinstall": "node ./script/npm_install_plugins.js"
+    "postinstall": "node ./script/npm_install_plugins.js",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "jest": {
     "automock": true,
@@ -145,5 +148,6 @@
       "raf/polyfill",
       "./webpack/test_setup.js"
     ]
-  }
+  },
+  "snyk": true
 }
